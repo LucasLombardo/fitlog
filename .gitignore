@@ -1,0 +1,27 @@
+# Maven build output
+/backend/target/
+
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# VSCode
+.vscode/
+
+# Eclipse
+*.classpath
+*.project
+*.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Vim/Editor swap files
+*.swp
+
+# Lombok (if any)
+*.lombok 
