@@ -254,4 +254,44 @@ public class UserController {
             "role", user.getRole()
         ));
     }
+
+    /**
+     * Endpoint for a user to delete their own account.
+     * Only the authenticated user can delete themselves (no admin required).
+     *
+     * Security: Only deletes the user whose ID is in the validated JWT.
+     */
+    @Operation(
+        summary = "Delete own account",
+        description = "Allows the authenticated user to delete their own account. Requires a valid JWT.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Account deleted successfully."),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing token."),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+        }
+    )
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteOwnAccount(
+            @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader) {
+        // Check for Bearer token
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Missing or invalid Authorization header."));
+        }
+        String token = authHeader.substring(7);
+        Long userId;
+        try {
+            // Validate the JWT and extract the userId claim
+            var claims = jwtUtil.validateToken(token);
+            userId = claims.get("userId", Integer.class) != null ? claims.get("userId", Integer.class).longValue() : claims.get("userId", Long.class);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token."));
+        }
+        // Check if the user exists
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+        // Delete the user
+        userRepository.deleteById(userId);
+        return ResponseEntity.ok(Map.of("message", "Account deleted successfully."));
+    }
 } 

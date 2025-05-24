@@ -517,4 +517,37 @@ public class UserControllerTest {
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void testDeleteOwnAccount_Succeeds() throws Exception {
+        String testEmail = uniqueEmail("selfdelete");
+        // Register a new user
+        var createUser = new java.util.HashMap<String, String>();
+        createUser.put("email", testEmail);
+        createUser.put("password", testPassword);
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createUser)))
+                .andExpect(status().isCreated());
+        // Login to get JWT
+        var loginUser = new java.util.HashMap<String, String>();
+        loginUser.put("email", testEmail);
+        loginUser.put("password", testPassword);
+        MvcResult loginResult = mockMvc.perform(post("/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginUser)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        // Delete own account
+        mockMvc.perform(delete("/users/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Account deleted successfully."));
+        // Try to login again (should fail)
+        mockMvc.perform(post("/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginUser)))
+                .andExpect(status().isUnauthorized());
+    }
 } 
