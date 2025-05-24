@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 // Controller for user-related endpoints
 @Tag(name = "User", description = "Operations related to user management, registration, login, and deletion.")
@@ -43,11 +44,13 @@ public class UserController {
 
     @Operation(
         summary = "Get all users",
-        description = "Returns a list of all users (excluding passwords). Only accessible to authorized users.",
+        description = "Returns a list of all users (excluding passwords). Only accessible to users with the ADMIN role.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "List of users returned successfully.")
+            @ApiResponse(responseCode = "200", description = "List of users returned successfully."),
+            @ApiResponse(responseCode = "403", description = "Forbidden: Only accessible to ADMINs.")
         }
     )
+    @PreAuthorize("hasRole('ADMIN')") // Only allow ADMINs
     @GetMapping
     public List<Map<String, ?>> getUsers() {
         // Fetch all users from the database
@@ -66,7 +69,7 @@ public class UserController {
     public static class CreateUserRequest {
         public String email;
         public String password;
-        public String role; // Optional, default to USER
+        // Removed role field for security: all new users are USER by default
     }
 
     /**
@@ -76,7 +79,7 @@ public class UserController {
      */
     @Operation(
         summary = "Create a new user",
-        description = "Registers a new user with email, password, and optional role. Returns the created user (excluding password).",
+        description = "Registers a new user with email and password. All new users are assigned the USER role by default. Returns the created user (excluding password).",
         responses = {
             @ApiResponse(responseCode = "201", description = "User created successfully."),
             @ApiResponse(responseCode = "400", description = "Invalid input or duplicate email.")
@@ -85,7 +88,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUser(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "User registration data",
+            description = "User registration data (email and password only)",
             required = true,
             content = @Content(schema = @Schema(implementation = CreateUserRequest.class))
         )
@@ -104,7 +107,7 @@ public class UserController {
         User user = new User();
         user.setEmail(request.email);
         user.setPassword(hashedPassword);
-        user.setRole(request.role != null ? request.role : "USER");
+        user.setRole("USER"); // Always set to USER for self-registration
         // createdAt/updatedAt are set automatically
         try {
             userRepository.save(user);
@@ -177,15 +180,17 @@ public class UserController {
      */
     @Operation(
         summary = "Delete a user",
-        description = "Deletes a user by their ID. Should be restricted to admins or the user themselves.",
+        description = "Deletes a user by their ID. Only accessible to users with the ADMIN role.",
         parameters = {
             @Parameter(name = "id", description = "ID of the user to delete", required = true)
         },
         responses = {
             @ApiResponse(responseCode = "200", description = "User deleted successfully."),
+            @ApiResponse(responseCode = "403", description = "Forbidden: Only accessible to ADMINs."),
             @ApiResponse(responseCode = "404", description = "User not found.")
         }
     )
+    @PreAuthorize("hasRole('ADMIN')") // Only allow ADMINs
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {
@@ -193,5 +198,60 @@ public class UserController {
         }
         userRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully."));
+    }
+
+    /**
+     * Endpoint to get a single user by ID.
+     * Only accessible to admins or the user themselves.
+     */
+    @Operation(
+        summary = "Get a single user",
+        description = "Returns a single user's info (excluding password). Only accessible to admins or the user themselves.",
+        parameters = {
+            @Parameter(name = "id", description = "ID of the user to fetch", required = true)
+        },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User returned successfully."),
+            @ApiResponse(responseCode = "403", description = "Forbidden: Not allowed to access this user."),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+        }
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader) {
+        // Check for Bearer token
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Missing or invalid Authorization header."));
+        }
+        String token = authHeader.substring(7);
+        // Parse JWT to extract userId and role
+        Long requesterId;
+        String requesterRole;
+        try {
+            var claims = jwtUtil.validateToken(token);
+            requesterId = claims.get("userId", Integer.class) != null ? claims.get("userId", Integer.class).longValue() : claims.get("userId", Long.class);
+            requesterRole = claims.get("role", String.class);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token."));
+        }
+        // Only allow if admin or requesting their own user
+        if (!("ADMIN".equals(requesterRole) || (requesterId != null && requesterId.equals(id)))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "You are not allowed to access this user."));
+        }
+        // Fetch user from DB
+        var userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+        User user = userOpt.get();
+        // Return non-sensitive info only
+        return ResponseEntity.ok(Map.of(
+            "id", user.getId(),
+            "email", user.getEmail(),
+            "createdAt", user.getCreatedAt(),
+            "updatedAt", user.getUpdatedAt(),
+            "role", user.getRole()
+        ));
     }
 } 

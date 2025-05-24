@@ -39,6 +39,17 @@
    - In development mode, Swagger UI is enabled at [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
    - (Disabled in production for security)
 
+## Running tests
+
+You can run the backend tests using Maven. Make sure the Postgres database is running (see above) before running integration tests:
+
+```sh
+mvn test
+```
+
+- This will run all unit and integration tests in the backend.
+- If you see database connection errors, ensure Docker Compose is running and the database is available at `localhost:5432` with the correct credentials.
+
 ## Notes
 
 - The backend expects the Postgres database to be running before you start the app.
