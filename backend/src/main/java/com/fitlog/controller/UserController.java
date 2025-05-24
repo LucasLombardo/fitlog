@@ -18,8 +18,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import com.fitlog.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 // Controller for user-related endpoints
+@Tag(name = "User", description = "Operations related to user management, registration, login, and deletion.")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -34,6 +41,13 @@ public class UserController {
         this.jwtUtil = jwtUtil;
     }
 
+    @Operation(
+        summary = "Get all users",
+        description = "Returns a list of all users (excluding passwords). Only accessible to authorized users.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "List of users returned successfully.")
+        }
+    )
     @GetMapping
     public List<Map<String, ?>> getUsers() {
         // Fetch all users from the database
@@ -60,8 +74,22 @@ public class UserController {
      * In the future, add email verification and send a verification email here.
      * For password reset, store a reset token and send email when needed.
      */
+    @Operation(
+        summary = "Create a new user",
+        description = "Registers a new user with email, password, and optional role. Returns the created user (excluding password).",
+        responses = {
+            @ApiResponse(responseCode = "201", description = "User created successfully."),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate email.")
+        }
+    )
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<?> createUser(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "User registration data",
+            required = true,
+            content = @Content(schema = @Schema(implementation = CreateUserRequest.class))
+        )
+        @RequestBody CreateUserRequest request) {
         // Basic validation
         if (request.email == null || request.email.isBlank() || request.password == null || request.password.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Email and password are required."));
@@ -98,8 +126,23 @@ public class UserController {
      * Returns a JWT on successful login.
      * Never reveal if email or password was incorrect for security.
      */
+    @Operation(
+        summary = "User login",
+        description = "Authenticates a user and returns a JWT token on success.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Login successful, JWT returned."),
+            @ApiResponse(responseCode = "400", description = "Missing email or password."),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+        }
+    )
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<?> login(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "User login data",
+            required = true,
+            content = @Content(schema = @Schema(implementation = CreateUserRequest.class))
+        )
+        @RequestBody CreateUserRequest request) {
         if (request.email == null || request.email.isBlank() || request.password == null || request.password.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Email and password are required."));
         }
@@ -132,6 +175,17 @@ public class UserController {
      * Endpoint to delete a user by ID.
      * In a real app, restrict this to admins or the user themselves.
      */
+    @Operation(
+        summary = "Delete a user",
+        description = "Deletes a user by their ID. Should be restricted to admins or the user themselves.",
+        parameters = {
+            @Parameter(name = "id", description = "ID of the user to delete", required = true)
+        },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User deleted successfully."),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+        }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {
