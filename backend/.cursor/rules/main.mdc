@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Add comments and explain code, I am a total beginner to java and spring boot.
+
+Prioritize security and best practices.
+
+If any new security vulnerabilities are indroduced call it out.
+
+After each change verify the project can still build and all tests are passing.

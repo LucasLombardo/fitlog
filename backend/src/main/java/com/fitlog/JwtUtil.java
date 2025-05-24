@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import java.util.Date;
 import java.security.Key;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 // Utility class for generating and validating JWT tokens
@@ -18,9 +19,9 @@ public class JwtUtil {
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
 
     // Generate a JWT token for a user
-    public String generateToken(Long userId, String email, String role) {
+    public String generateToken(UUID userId, String email, String role) {
         return Jwts.builder()
-                .claim("userId", userId)
+                .claim("userId", userId.toString())
                 .claim("email", email)
                 .claim("role", role)
                 .setIssuedAt(new Date())

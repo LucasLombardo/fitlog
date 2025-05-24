@@ -17,6 +17,8 @@ import java.util.UUID;
 
 import com.fitlog.repository.UserRepository;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
@@ -52,7 +54,7 @@ public class UserControllerTest {
             var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
             for (var user : users) {
                 if (user.get("email").asText().equals(testEmail)) {
-                    long id = user.get("id").asLong();
+                    UUID id = UUID.fromString(user.get("id").asText());
                     mockMvc.perform(delete("/users/" + id)
                             .header("Authorization", "Bearer " + token));
                 }
@@ -77,7 +79,7 @@ public class UserControllerTest {
             var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
             for (var user : users) {
                 if (user.get("email").asText().equals(email)) {
-                    long id = user.get("id").asLong();
+                    UUID id = UUID.fromString(user.get("id").asText());
                     mockMvc.perform(delete("/users/" + id)
                             .header("Authorization", "Bearer " + token));
                 }
@@ -194,7 +196,7 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
         // Try to delete without token
-        mockMvc.perform(delete("/users/1"))
+        mockMvc.perform(delete("/users/00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isForbidden());
     }
 
@@ -218,7 +220,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
-        long userId = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("user").get("id").asLong();
+        UUID userId = UUID.fromString(objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("user").get("id").asText());
         // User can get themselves
         mockMvc.perform(get("/users/" + userId)
                 .header("Authorization", "Bearer " + token))
@@ -268,10 +270,10 @@ public class UserControllerTest {
                 .header("Authorization", "Bearer " + adminToken))
                 .andReturn();
         var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
-        long userId = -1;
+        UUID userId = null;
         for (var user : users) {
             if (user.get("email").asText().equals(testEmail)) {
-                userId = user.get("id").asLong();
+                userId = UUID.fromString(user.get("id").asText());
             }
         }
         // Admin can get any user
@@ -286,8 +288,8 @@ public class UserControllerTest {
         String user1Email = uniqueEmail("user1");
         String user2Email = uniqueEmail("user2");
         // Clean up users
-        deleteUserByEmailIfExists("user1@example.com", "user1pass");
-        deleteUserByEmailIfExists("user2@example.com", "user2pass");
+        deleteUserByEmailIfExists(user1Email, "user1pass");
+        deleteUserByEmailIfExists(user2Email, "user2pass");
         // Register user1
         var createUser1 = new java.util.HashMap<String, String>();
         createUser1.put("email", user1Email);
@@ -314,7 +316,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String user2Token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
-        // Get user1 id
+        // Login as user1 and get user1Id from login response
         var loginUser1 = new java.util.HashMap<String, String>();
         loginUser1.put("email", user1Email);
         loginUser1.put("password", "user1pass");
@@ -324,16 +326,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String user1Token = objectMapper.readTree(loginResult1.getResponse().getContentAsString()).get("token").asText();
-        MvcResult usersResult = mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + user1Token))
-                .andReturn();
-        var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
-        long user1Id = -1;
-        for (var user : users) {
-            if (user.get("email").asText().equals(user1Email)) {
-                user1Id = user.get("id").asLong();
-            }
-        }
+        UUID user1Id = UUID.fromString(objectMapper.readTree(loginResult1.getResponse().getContentAsString()).get("user").get("id").asText());
         // user2 cannot get user1
         mockMvc.perform(get("/users/" + user1Id)
                 .header("Authorization", "Bearer " + user2Token))
@@ -368,7 +361,7 @@ public class UserControllerTest {
                 .andReturn();
         String adminToken = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
         // Try to get a non-existent user
-        mockMvc.perform(get("/users/999999")
+        mockMvc.perform(get("/users/00000000-0000-0000-0000-000000000000")
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNotFound());
     }
@@ -376,10 +369,10 @@ public class UserControllerTest {
     @Test
     void testGetUserById_MissingOrInvalidToken() throws Exception {
         // Should return 403 for missing token
-        mockMvc.perform(get("/users/1"))
+        mockMvc.perform(get("/users/00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isForbidden());
         // Should return 401 for invalid token
-        mockMvc.perform(get("/users/1")
+        mockMvc.perform(get("/users/00000000-0000-0000-0000-000000000000")
                 .header("Authorization", "Bearer invalidtoken"))
                 .andExpect(status().isUnauthorized());
     }
@@ -462,7 +455,7 @@ public class UserControllerTest {
                 .andReturn();
         String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
         // User should not be able to delete any user
-        mockMvc.perform(delete("/users/1")
+        mockMvc.perform(delete("/users/00000000-0000-0000-0000-000000000000")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden());
     }
@@ -506,10 +499,10 @@ public class UserControllerTest {
                 .header("Authorization", "Bearer " + adminToken))
                 .andReturn();
         var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
-        long userId = -1;
+        UUID userId = null;
         for (var user : users) {
             if (user.get("email").asText().equals(userEmail)) {
-                userId = user.get("id").asLong();
+                userId = UUID.fromString(user.get("id").asText());
             }
         }
         // Admin can delete user

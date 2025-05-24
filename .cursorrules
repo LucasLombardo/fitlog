@@ -1,3 +1,0 @@
-For backend work, add comments to keep things as easy to understand as possible. I have not worked with Java or Spring before and am trying to learn.
-
-Security and best practices are very important, after every change in backend call it out if any new security concerns or vulnerabilities are introduced.

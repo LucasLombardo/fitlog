@@ -8,20 +8,7 @@
 
 ## Running locally
 
-1. **Start the Postgres database with Docker Compose:**
-
-   This will start a Postgres container with the correct database, user, and password as expected by the backend.
-
-   ```sh
-   docker-compose up -d
-   ```
-   
-   - The database will be available at `localhost:5432`.
-   - Credentials (see `docker-compose.yml` and `application.properties`):
-     - Database: `fitlog`
-     - User: `fitlog_user`
-     - Password: `fitlog_password`
-
+1. **Start the Postgres database with Docker Compose, see readme in db directory**
 2. **Run the backend using Maven:**
 
    Make sure you are using Java 17. You can check your version with:

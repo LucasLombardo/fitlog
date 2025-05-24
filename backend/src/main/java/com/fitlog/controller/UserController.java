@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import com.fitlog.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +24,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 // Controller for user-related endpoints
 @Tag(name = "User", description = "Operations related to user management, registration, login, and deletion.")
@@ -192,7 +193,7 @@ public class UserController {
     )
     @PreAuthorize("hasRole('ADMIN')") // Only allow ADMINs
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
         if (!userRepository.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
         }
@@ -218,7 +219,7 @@ public class UserController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader) {
         // Check for Bearer token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -226,11 +227,11 @@ public class UserController {
         }
         String token = authHeader.substring(7);
         // Parse JWT to extract userId and role
-        Long requesterId;
+        UUID requesterId;
         String requesterRole;
         try {
             var claims = jwtUtil.validateToken(token);
-            requesterId = claims.get("userId", Integer.class) != null ? claims.get("userId", Integer.class).longValue() : claims.get("userId", Long.class);
+            requesterId = UUID.fromString(claims.get("userId", String.class));
             requesterRole = claims.get("role", String.class);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token."));
@@ -278,11 +279,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Missing or invalid Authorization header."));
         }
         String token = authHeader.substring(7);
-        Long userId;
+        UUID userId;
         try {
             // Validate the JWT and extract the userId claim
             var claims = jwtUtil.validateToken(token);
-            userId = claims.get("userId", Integer.class) != null ? claims.get("userId", Integer.class).longValue() : claims.get("userId", Long.class);
+            userId = UUID.fromString(claims.get("userId", String.class));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token."));
         }
