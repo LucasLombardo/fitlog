@@ -17,8 +17,6 @@ import java.util.UUID;
 
 import com.fitlog.repository.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
@@ -325,7 +323,6 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser1)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String user1Token = objectMapper.readTree(loginResult1.getResponse().getContentAsString()).get("token").asText();
         UUID user1Id = UUID.fromString(objectMapper.readTree(loginResult1.getResponse().getContentAsString()).get("user").get("id").asText());
         // user2 cannot get user1
         mockMvc.perform(get("/users/" + user1Id)
