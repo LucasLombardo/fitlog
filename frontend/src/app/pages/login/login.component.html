@@ -1,1 +1,14 @@
-<p>login works!</p>
+<form (ngSubmit)="login()">
+  <label>
+    Email:
+    <input type="email" name="email" [(ngModel)]="email" required />
+  </label>
+  <br />
+  <label>
+    Password:
+    <input type="password" name="password" [(ngModel)]="password" required />
+  </label>
+  <br />
+  <button type="submit">Login</button>
+</form>
+<p *ngIf="message">{{ message }}</p>
