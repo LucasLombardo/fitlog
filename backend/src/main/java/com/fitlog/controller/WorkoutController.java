@@ -49,7 +49,6 @@ public class WorkoutController {
         try {
             var claims = jwtUtil.validateToken(token);
             UUID userId = UUID.fromString(claims.get("userId", String.class));
-            String role = claims.get("role", String.class);
             return Optional.of(new UserInfo(userId));
         } catch (Exception e) {
             return Optional.empty();
