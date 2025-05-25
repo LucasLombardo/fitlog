@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitlog.entity.Exercise;
 import com.fitlog.repository.ExerciseRepository;
 import com.fitlog.repository.UserRepository;
+import com.fitlog.repository.WorkoutExerciseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+// Use the test profile configuration (application-test.properties) to ensure tests run against H2, not the real database
+@org.springframework.test.context.TestPropertySource(locations = "classpath:application-test.properties")
 public class ExerciseControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -35,6 +38,9 @@ public class ExerciseControllerTest {
 
     @Autowired
     private ExerciseRepository exerciseRepository;
+
+    @Autowired
+    private WorkoutExerciseRepository workoutExerciseRepository;
 
     private String testPassword = "testpassword";
 
@@ -87,6 +93,8 @@ public class ExerciseControllerTest {
 
     @BeforeEach
     void cleanUp() {
+        // Delete workout_exercises first to avoid foreign key constraint errors
+        workoutExerciseRepository.deleteAll();
         exerciseRepository.deleteAll();
     }
 

@@ -10,3 +10,5 @@ Prioritize security and best practices.
 If any new security vulnerabilities are indroduced call it out.
 
 After each change verify the project can still build and all tests are passing.
+
+do not use ./mvnw commands

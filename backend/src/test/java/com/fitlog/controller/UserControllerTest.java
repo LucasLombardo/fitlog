@@ -20,6 +20,8 @@ import com.fitlog.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+// Use the test profile configuration (application-test.properties) to ensure tests run against H2, not the real database
+@org.springframework.test.context.TestPropertySource(locations = "classpath:application-test.properties")
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
