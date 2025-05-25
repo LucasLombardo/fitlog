@@ -1,1 +1,27 @@
-<p>users-list works!</p>
+<p>users-list: {{ userSession.isAdmin() ? 'active' : 'inactive' }}</p>
+
+<!-- Only show if NOT admin -->
+<div *ngIf="userSession.isAdmin()">
+  <div *ngIf="loading">Loading users...</div>
+  <div *ngIf="error">{{ error }}</div>
+  <table *ngIf="!loading && !error && users.length > 0" border="1">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Updated At</th>
+        <th>ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ formatShortDate(user.updatedAt) }}</td>
+        <td>{{ user.id }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="!loading && !error && users.length === 0">No users found.</div>
+</div>
+<!-- If admin, show nothing -->

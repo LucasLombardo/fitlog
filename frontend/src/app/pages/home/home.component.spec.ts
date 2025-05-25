@@ -1,7 +1,8 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, withDisabledInitialNavigation } from '@angular/router';
-import { UserSessionService } from '../../services/user-session.service';
 import { User, UserRole } from '../../models/user.model';
+import { UserSessionService } from '../../services/user-session.service';
 import { HomeComponent } from './home.component';
 
 class MockUserSessionService {
@@ -21,6 +22,9 @@ class MockUserSessionService {
   isLoggedIn() {
     return this.loggedIn;
   }
+  isAdmin() {
+    return false;
+  }
 }
 
 describe('HomeComponent', () => {
@@ -30,7 +34,7 @@ describe('HomeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideRouter([], withDisabledInitialNavigation())],
+      providers: [provideRouter([], withDisabledInitialNavigation()), provideHttpClient()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
@@ -51,7 +55,7 @@ describe('HomeComponent greeting', () => {
     mockSession = new MockUserSessionService();
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [{ provide: UserSessionService, useValue: mockSession }],
+      providers: [{ provide: UserSessionService, useValue: mockSession }, provideHttpClient()],
     }).compileComponents();
     fixture = TestBed.createComponent(HomeComponent);
   });
@@ -64,7 +68,12 @@ describe('HomeComponent greeting', () => {
   });
 
   it('should show "Hello {email}" if logged in', () => {
-    mockSession.setUser({ id: '1', role: UserRole.USER, email: 'a@b.com' });
+    mockSession.setUser({
+      id: '1',
+      role: UserRole.USER,
+      email: 'a@b.com',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+    });
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('Hello a@b.com');

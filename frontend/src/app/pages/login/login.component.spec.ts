@@ -42,7 +42,12 @@ describe('LoginComponent logic', () => {
   });
 
   it('should store user info and navigate on successful login', () => {
-    const user = { id: '1', role: UserRole.USER, email: 'a@b.com' };
+    const user = {
+      id: '1',
+      role: UserRole.USER,
+      email: 'a@b.com',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+    };
     http.post.and.returnValue(of({ user }));
     component.email = 'a@b.com';
     component.password = 'pw';

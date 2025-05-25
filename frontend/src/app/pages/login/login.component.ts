@@ -31,21 +31,28 @@ export class LoginComponent {
     interface LoginResponse {
       user?: User;
     }
-    this.http.post<LoginResponse>(this.loginUrl, { email: this.email, password: this.password }).subscribe({
-      next: response => {
-        if (response && response.user) {
-          const user: User = {
-            id: response.user.id,
-            role: response.user.role,
-            email: response.user.email,
-          };
-          this.userSession.setUser(user);
-          this.router.navigate(['/']);
-        } else {
-          this.message = 'failure :('; // fallback if no user in response
-        }
-      },
-      error: () => (this.message = 'failure :('),
-    });
+    this.http
+      .post<LoginResponse>(
+        this.loginUrl,
+        { email: this.email, password: this.password },
+        { withCredentials: true },
+      )
+      .subscribe({
+        next: response => {
+          if (response && response.user) {
+            const user: User = {
+              id: response.user.id,
+              role: response.user.role,
+              email: response.user.email,
+              updatedAt: response.user.updatedAt || new Date().toISOString(),
+            };
+            this.userSession.setUser(user);
+            this.router.navigate(['/']);
+          } else {
+            this.message = 'failure :('; // fallback if no user in response
+          }
+        },
+        error: () => (this.message = 'failure :('),
+      });
   }
 }
