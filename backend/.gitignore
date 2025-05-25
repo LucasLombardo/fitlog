@@ -1,12 +1,9 @@
 # Maven build output
-/backend/target/
+/target/
 
 # IntelliJ IDEA
 *.iml
 .idea/
-
-# VSCode
-.vscode/
 
 # Eclipse
 *.classpath

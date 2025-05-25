@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You are working on an Angular project. 
+Suggest idiomatic Angular patterns (e.g., using services, RxJS, and dependency injection). Maintain best practices.
