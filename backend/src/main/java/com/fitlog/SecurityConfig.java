@@ -10,6 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.core.env.Environment;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 
 // Security configuration class
 @Configuration
@@ -18,10 +23,36 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
+    @Autowired
+    private Environment env;
+
     // Define a bean for password encoding using BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Only allow CORS in dev or test
+        String[] activeProfiles = env.getActiveProfiles();
+        boolean isDevOrTest = false;
+        for (String profile : activeProfiles) {
+            if (profile.equals("dev") || profile.equals("test")) {
+                isDevOrTest = true;
+                break;
+            }
+        }
+        if (isDevOrTest) {
+            configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            configuration.setAllowedHeaders(List.of("*"));
+            configuration.setAllowCredentials(true);
+        }
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     // Configure HTTP security and register the JWT filter
@@ -37,7 +68,8 @@ public class SecurityConfig {
                 .requestMatchers("/users", "/users/", "/users/**").authenticated()
                 .anyRequest().permitAll() // Allow other endpoints (e.g., health)
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
     }
 } 

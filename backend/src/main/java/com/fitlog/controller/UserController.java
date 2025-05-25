@@ -162,17 +162,28 @@ public class UserController {
         }
         // Generate JWT token
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
-        // Return token and user info (non-sensitive)
-        return ResponseEntity.ok(Map.of(
-            "token", token,
-            "user", Map.of(
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "createdAt", user.getCreatedAt(),
-                "updatedAt", user.getUpdatedAt(),
-                "role", user.getRole()
-            )
-        ));
+
+        // Set JWT as HttpOnly, Secure cookie
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("jwt", token)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("Strict")
+            .maxAge(24 * 60 * 60) // 1 day
+            .build();
+
+        // Return user info only (no token in body)
+        return ResponseEntity.ok()
+            .header(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(Map.of(
+                "user", Map.of(
+                    "id", user.getId(),
+                    "email", user.getEmail(),
+                    "createdAt", user.getCreatedAt(),
+                    "updatedAt", user.getUpdatedAt(),
+                    "role", user.getRole()
+                )
+            ));
     }
 
     /**
