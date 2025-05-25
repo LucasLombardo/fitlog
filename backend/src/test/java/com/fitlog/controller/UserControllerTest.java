@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.mock.web.MockCookie;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,29 +33,40 @@ public class UserControllerTest {
     private String testEmail = "testuser@example.com";
     private String testPassword = "testpassword";
 
+    // Helper to extract JWT from Set-Cookie header
+    private String extractJwtFromSetCookie(MvcResult result) {
+        String setCookie = result.getResponse().getHeader("Set-Cookie");
+        if (setCookie == null) return null;
+        for (String cookie : setCookie.split(";")) {
+            if (cookie.trim().startsWith("jwt=")) {
+                return cookie.trim().substring(4);
+            }
+        }
+        return null;
+    }
+
     @BeforeEach
     void cleanUp() throws Exception {
-        // Try to delete the user by email if it exists (ignore errors)
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
         loginUser.put("password", testPassword);
-        // Try to login to get the token (if user exists)
         MvcResult loginResult = mockMvc.perform(post("/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andReturn();
         if (loginResult.getResponse().getStatus() == 200) {
-            String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
-            // Get all users with the token
-            MvcResult usersResult = mockMvc.perform(get("/users")
-                    .header("Authorization", "Bearer " + token))
-                    .andReturn();
-            var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
-            for (var user : users) {
-                if (user.get("email").asText().equals(testEmail)) {
-                    UUID id = UUID.fromString(user.get("id").asText());
-                    mockMvc.perform(delete("/users/" + id)
-                            .header("Authorization", "Bearer " + token));
+            String jwt = extractJwtFromSetCookie(loginResult);
+            if (jwt != null) {
+                MvcResult usersResult = mockMvc.perform(get("/users")
+                        .cookie(new MockCookie("jwt", jwt)))
+                        .andReturn();
+                var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
+                for (var user : users) {
+                    if (user.get("email").asText().equals(testEmail)) {
+                        UUID id = UUID.fromString(user.get("id").asText());
+                        mockMvc.perform(delete("/users/" + id)
+                                .cookie(new MockCookie("jwt", jwt)));
+                    }
                 }
             }
         }
@@ -70,16 +82,18 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andReturn();
         if (loginResult.getResponse().getStatus() == 200) {
-            String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
-            MvcResult usersResult = mockMvc.perform(get("/users")
-                    .header("Authorization", "Bearer " + token))
-                    .andReturn();
-            var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
-            for (var user : users) {
-                if (user.get("email").asText().equals(email)) {
-                    UUID id = UUID.fromString(user.get("id").asText());
-                    mockMvc.perform(delete("/users/" + id)
-                            .header("Authorization", "Bearer " + token));
+            String jwt = extractJwtFromSetCookie(loginResult);
+            if (jwt != null) {
+                MvcResult usersResult = mockMvc.perform(get("/users")
+                        .cookie(new MockCookie("jwt", jwt)))
+                        .andReturn();
+                var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
+                for (var user : users) {
+                    if (user.get("email").asText().equals(email)) {
+                        UUID id = UUID.fromString(user.get("id").asText());
+                        mockMvc.perform(delete("/users/" + id)
+                                .cookie(new MockCookie("jwt", jwt)));
+                    }
                 }
             }
         }
@@ -111,17 +125,16 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
                 .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
 
         // 3. Access protected endpoint without token (should fail)
         mockMvc.perform(get("/users"))
                 .andExpect(status().isForbidden());
 
-        // 4. Access protected endpoint with token (should fail for non-admin)
+        // 4. Access protected endpoint with cookie (should fail for non-admin)
         mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + token))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isForbidden());
     }
 
@@ -178,7 +191,7 @@ public class UserControllerTest {
     @Test
     void testAccessProtectedEndpointWithInvalidJWTReturns401() throws Exception {
         mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer invalidtoken"))
+                .cookie(new MockCookie("jwt", "invalidtoken")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -217,11 +230,11 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         UUID userId = UUID.fromString(objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("user").get("id").asText());
         // User can get themselves
         mockMvc.perform(get("/users/" + userId)
-                .header("Authorization", "Bearer " + token))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(testEmail));
     }
@@ -262,10 +275,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginAdmin)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String adminToken = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String adminJwt = extractJwtFromSetCookie(loginResult);
         // Get user id
         MvcResult usersResult = mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", adminJwt)))
                 .andReturn();
         var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
         UUID userId = null;
@@ -276,7 +289,7 @@ public class UserControllerTest {
         }
         // Admin can get any user
         mockMvc.perform(get("/users/" + userId)
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", adminJwt)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(testEmail));
     }
@@ -313,7 +326,7 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser2)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String user2Token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String user2Jwt = extractJwtFromSetCookie(loginResult);
         // Login as user1 and get user1Id from login response
         var loginUser1 = new java.util.HashMap<String, String>();
         loginUser1.put("email", user1Email);
@@ -326,7 +339,7 @@ public class UserControllerTest {
         UUID user1Id = UUID.fromString(objectMapper.readTree(loginResult1.getResponse().getContentAsString()).get("user").get("id").asText());
         // user2 cannot get user1
         mockMvc.perform(get("/users/" + user1Id)
-                .header("Authorization", "Bearer " + user2Token))
+                .cookie(new MockCookie("jwt", user2Jwt)))
                 .andExpect(status().isForbidden());
     }
 
@@ -356,10 +369,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginAdmin)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String adminToken = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String adminJwt = extractJwtFromSetCookie(loginResult);
         // Try to get a non-existent user
         mockMvc.perform(get("/users/00000000-0000-0000-0000-000000000000")
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", adminJwt)))
                 .andExpect(status().isNotFound());
     }
 
@@ -370,7 +383,7 @@ public class UserControllerTest {
                 .andExpect(status().isForbidden());
         // Should return 401 for invalid token
         mockMvc.perform(get("/users/00000000-0000-0000-0000-000000000000")
-                .header("Authorization", "Bearer invalidtoken"))
+                .cookie(new MockCookie("jwt", "invalidtoken")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -393,10 +406,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         // User should not be able to get all users
         mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + token))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isForbidden());
     }
 
@@ -424,10 +437,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginAdmin)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String adminToken = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         // Admin should be able to get all users
         mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isOk());
     }
 
@@ -450,10 +463,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         // User should not be able to delete any user
         mockMvc.perform(delete("/users/00000000-0000-0000-0000-000000000000")
-                .header("Authorization", "Bearer " + token))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isForbidden());
     }
 
@@ -482,7 +495,7 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginAdmin)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String adminToken = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         // Register a user to delete
         var createUser = new java.util.HashMap<String, String>();
         createUser.put("email", userEmail);
@@ -493,7 +506,7 @@ public class UserControllerTest {
                 .andExpect(status().isCreated());
         // Get user id
         MvcResult usersResult = mockMvc.perform(get("/users")
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andReturn();
         var users = objectMapper.readTree(usersResult.getResponse().getContentAsString());
         UUID userId = null;
@@ -504,7 +517,7 @@ public class UserControllerTest {
         }
         // Admin can delete user
         mockMvc.perform(delete("/users/" + userId)
-                .header("Authorization", "Bearer " + adminToken))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isOk());
     }
 
@@ -528,10 +541,10 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isOk())
                 .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        String jwt = extractJwtFromSetCookie(loginResult);
         // Delete own account
         mockMvc.perform(delete("/users/me")
-                .header("Authorization", "Bearer " + token))
+                .cookie(new MockCookie("jwt", jwt)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Account deleted successfully."));
         // Try to login again (should fail)

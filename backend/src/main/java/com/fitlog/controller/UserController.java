@@ -231,12 +231,23 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
             @PathVariable UUID id,
-            @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader) {
-        // Check for Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String authHeader,
+            jakarta.servlet.http.HttpServletRequest request) {
+        // Check for Bearer token or cookie
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (token == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Missing or invalid Authorization header."));
         }
-        String token = authHeader.substring(7);
         // Parse JWT to extract userId and role
         UUID requesterId;
         String requesterRole;
@@ -284,12 +295,23 @@ public class UserController {
     )
     @DeleteMapping("/me")
     public ResponseEntity<?> deleteOwnAccount(
-            @org.springframework.web.bind.annotation.RequestHeader("Authorization") String authHeader) {
-        // Check for Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String authHeader,
+            jakarta.servlet.http.HttpServletRequest request) {
+        // Check for Bearer token or cookie
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Missing or invalid Authorization header."));
         }
-        String token = authHeader.substring(7);
         UUID userId;
         try {
             // Validate the JWT and extract the userId claim
