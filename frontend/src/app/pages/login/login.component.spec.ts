@@ -1,9 +1,9 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { UserSessionService } from './login.component';
+import { provideRouter, withDisabledInitialNavigation } from '@angular/router';
 import { of, throwError } from 'rxjs';
-
+import { UserRole } from '../../models/user.model';
+import { UserSessionService } from '../../services/user-session.service';
 import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
@@ -12,9 +12,9 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, HttpClientTestingModule, RouterTestingModule]
-    })
-    .compileComponents();
+      imports: [LoginComponent],
+      providers: [provideRouter([], withDisabledInitialNavigation()), provideHttpClient()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
@@ -26,27 +26,12 @@ describe('LoginComponent', () => {
   });
 });
 
-describe('UserSessionService', () => {
-  let service: UserSessionService;
-  beforeEach(() => {
-    service = new UserSessionService();
-  });
-  it('should set and get user and login status', () => {
-    expect(service.isLoggedIn()).toBeFalse();
-    expect(service.getUser()).toBeNull();
-    service.setUser({ id: '1', role: 'USER', email: 'a@b.com' });
-    expect(service.isLoggedIn()).toBeTrue();
-    expect(service.getUser()).toEqual({ id: '1', role: 'USER', email: 'a@b.com' });
-    service.clearUser();
-    expect(service.isLoggedIn()).toBeFalse();
-    expect(service.getUser()).toBeNull();
-  });
-});
-
 describe('LoginComponent logic', () => {
   let component: LoginComponent;
   let userSession: UserSessionService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let http: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let router: any;
 
   beforeEach(() => {
@@ -57,7 +42,7 @@ describe('LoginComponent logic', () => {
   });
 
   it('should store user info and navigate on successful login', () => {
-    const user = { id: '1', role: 'USER', email: 'a@b.com' };
+    const user = { id: '1', role: UserRole.USER, email: 'a@b.com' };
     http.post.and.returnValue(of({ user }));
     component.email = 'a@b.com';
     component.password = 'pw';

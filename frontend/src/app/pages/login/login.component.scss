@@ -9,7 +9,7 @@ form {
   background: #fafafa;
   max-width: 320px;
   margin: 3rem auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 label {
@@ -19,15 +19,15 @@ label {
   font-weight: 500;
 }
 
-input[type="email"],
-input[type="password"] {
+input[type='email'],
+input[type='password'] {
   padding: 0.5rem;
   border: 1px solid #bbb;
   border-radius: 4px;
   margin-top: 0.25rem;
 }
 
-button[type="submit"] {
+button[type='submit'] {
   padding: 0.5rem 1.5rem;
   border: none;
   border-radius: 4px;
@@ -38,7 +38,7 @@ button[type="submit"] {
   transition: background 0.2s;
 }
 
-button[type="submit"]:hover {
+button[type='submit']:hover {
   background: #1565c0;
 }
 
