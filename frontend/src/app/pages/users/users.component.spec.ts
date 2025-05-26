@@ -7,6 +7,7 @@ import { UsersComponent } from './users.component';
 // Mock UserSessionService
 class MockUserSessionService {
   isAdmin() { return false; }
+  isLoggedIn() { return true; }
 }
 
 describe('UsersComponent', () => {

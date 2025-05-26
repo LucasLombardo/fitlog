@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { UsersListComponent } from '../../components/users-list/users-list.component';
 import { UserSessionService } from '../../services/user-session.service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, UsersListComponent],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
