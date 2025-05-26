@@ -1,5 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 body {
-  padding: 1em;
   font-family: sans-serif;
+}
+
+.container {
+  max-width: min(64rem, 80%);
+  margin: 0 auto;
+  min-width: 18rem;
 }

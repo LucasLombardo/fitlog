@@ -1,4 +1,17 @@
-<nav>
-  <a routerLink="/">Home</a>
-  <a routerLink="/login">Login</a>
-</nav>
+<div>
+  <nav class="container">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+    <a routerLink="/workouts" routerLinkActive="active">Workouts</a>
+    <a *ngIf="userSession.isAdmin()" routerLink="/users" routerLinkActive="active">Users</a>
+    <a *ngIf="!userSession.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
+    <button
+      *ngIf="userSession.isLoggedIn()"
+      class="nav-link"
+      (click)="logout()"
+      (keyup.enter)="logout()"
+      type="button"
+    >
+      Logout
+    </button>
+  </nav>
+</div>

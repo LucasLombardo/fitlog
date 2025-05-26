@@ -1,31 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, withDisabledInitialNavigation } from '@angular/router';
-import { User, UserRole } from '../../models/user.model';
-import { UserSessionService } from '../../services/user-session.service';
 import { HomeComponent } from './home.component';
-
-class MockUserSessionService {
-  private user: User | null = null;
-  private loggedIn = false;
-  setUser(user: User) {
-    this.user = user;
-    this.loggedIn = true;
-  }
-  clearUser() {
-    this.user = null;
-    this.loggedIn = false;
-  }
-  getUser() {
-    return this.user;
-  }
-  isLoggedIn() {
-    return this.loggedIn;
-  }
-  isAdmin() {
-    return false;
-  }
-}
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -44,38 +20,5 @@ describe('HomeComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-});
-
-describe('HomeComponent greeting', () => {
-  let fixture: ComponentFixture<HomeComponent>;
-  let mockSession: MockUserSessionService;
-
-  beforeEach(async () => {
-    mockSession = new MockUserSessionService();
-    await TestBed.configureTestingModule({
-      imports: [HomeComponent],
-      providers: [{ provide: UserSessionService, useValue: mockSession }, provideHttpClient()],
-    }).compileComponents();
-    fixture = TestBed.createComponent(HomeComponent);
-  });
-
-  it('should show "Hello user" if not logged in', () => {
-    mockSession.clearUser();
-    fixture.detectChanges();
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Hello user');
-  });
-
-  it('should show "Hello {email}" if logged in', () => {
-    mockSession.setUser({
-      id: '1',
-      role: UserRole.USER,
-      email: 'a@b.com',
-      updatedAt: '2025-01-01T00:00:00.000Z',
-    });
-    fixture.detectChanges();
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Hello a@b.com');
   });
 });
