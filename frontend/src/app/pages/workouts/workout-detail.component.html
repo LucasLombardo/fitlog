@@ -6,3 +6,13 @@
 </div>
 
 <button (click)="addExercise()">Add Exercise</button>
+
+<!-- List of exercises if present -->
+<div *ngIf="hasExercises()">
+  <h2>Exercises</h2>
+  <ul>
+    <li *ngFor="let wex of workout!.exercises">
+      {{ wex.exercise.name }}
+    </li>
+  </ul>
+</div>

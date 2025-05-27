@@ -38,4 +38,11 @@ export class WorkoutDetailComponent {
       this.router.navigate(['/exercises'], { state: { workoutId: this.id } });
     }
   }
+
+  /**
+   * Returns true if the workout has exercises to display.
+   */
+  hasExercises(): boolean {
+    return Array.isArray(this.workout?.exercises) && this.workout!.exercises!.length > 0;
+  }
 }

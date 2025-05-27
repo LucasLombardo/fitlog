@@ -22,7 +22,9 @@ export class WorkoutService {
   }
 
   putWorkoutById(id: string, workout: Workout): Observable<Workout> {
-    return this.http.put<Workout>(`${this.apiUrl}/workouts/${id}`, workout, { withCredentials: true });
+    return this.http.put<Workout>(`${this.apiUrl}/workouts/${id}`, workout, {
+      withCredentials: true,
+    });
   }
 
   deleteWorkoutById(id: string): Observable<void> {
@@ -30,6 +32,10 @@ export class WorkoutService {
   }
 
   addWorkoutExercise(workoutId: string, exerciseId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/workout_exercises`, { workoutId, exerciseId, sets: "", notes: "" }, { withCredentials: true });
+    return this.http.post<void>(
+      `${this.apiUrl}/workout_exercises`,
+      { workoutId, exerciseId, sets: '', notes: '' },
+      { withCredentials: true },
+    );
   }
 }

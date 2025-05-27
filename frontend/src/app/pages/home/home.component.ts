@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { Workout } from '../../models/workout.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { WorkoutService } from '../../services/workout.service';
-import { Workout } from '../../models/workout.model';
 
 @Component({
   selector: 'app-home',

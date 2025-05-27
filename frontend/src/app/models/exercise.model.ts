@@ -15,4 +15,4 @@ export interface Exercise {
   };
   public: boolean;
   active: boolean;
-} 
+}
