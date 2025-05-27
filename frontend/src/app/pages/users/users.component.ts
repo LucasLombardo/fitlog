@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersListComponent } from '../../components/users-list/users-list.component';
 import { Router } from '@angular/router';
+import { UsersListComponent } from '../../components/users-list/users-list.component';
 import { UserSessionService } from '../../services/user-session.service';
 
 @Component({
@@ -10,7 +10,10 @@ import { UserSessionService } from '../../services/user-session.service';
   styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit {
-  constructor(private userSession: UserSessionService, private router: Router) {}
+  constructor(
+    private userSession: UserSessionService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     // If not admin, redirect to home

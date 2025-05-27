@@ -9,7 +9,10 @@ import { UserSessionService } from '../../services/user-session.service';
   styleUrl: './workouts.component.scss',
 })
 export class WorkoutsComponent implements OnInit {
-  constructor(private userSession: UserSessionService, private router: Router) {}
+  constructor(
+    private userSession: UserSessionService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     // If not logged in, redirect to home
@@ -18,3 +21,5 @@ export class WorkoutsComponent implements OnInit {
     }
   }
 }
+
+// This is the workouts list page. The detail page is handled by WorkoutDetailComponent via the /workouts/:id route.

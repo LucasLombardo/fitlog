@@ -1,13 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UserSessionService } from '../../services/user-session.service';
 
 import { UsersComponent } from './users.component';
 
 // Mock UserSessionService
 class MockUserSessionService {
-  isAdmin() { return false; }
-  isLoggedIn() { return true; }
+  isAdmin() {
+    return false;
+  }
+  isLoggedIn() {
+    return true;
+  }
 }
 
 describe('UsersComponent', () => {

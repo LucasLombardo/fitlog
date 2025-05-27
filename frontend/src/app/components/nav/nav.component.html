@@ -1,7 +1,9 @@
 <div>
   <nav class="container">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-    <a *ngIf="userSession.isLoggedIn()" routerLink="/workouts" routerLinkActive="active">Workouts</a>
+    <a *ngIf="userSession.isLoggedIn()" routerLink="/workouts" routerLinkActive="active"
+      >Workouts</a
+    >
     <a *ngIf="userSession.isAdmin()" routerLink="/users" routerLinkActive="active">Users</a>
     <a *ngIf="!userSession.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
     <button

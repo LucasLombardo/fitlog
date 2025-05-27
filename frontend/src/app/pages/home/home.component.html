@@ -1,1 +1,4 @@
 <h1>Home</h1>
+
+<!-- Show button only if user is logged in -->
+<button *ngIf="userSession.isLoggedIn()" (click)="createWorkout()">Create New Workout</button>
