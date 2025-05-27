@@ -1,58 +1,37 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+// import { ComponentFixture } from '@angular/core/testing'; // Removed unused import
+import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { UserRole } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
-  let component: HomeComponent;
-  let fixture: ComponentFixture<HomeComponent>;
   let userSession: UserSessionService;
   let httpMock: HttpTestingController;
-  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HomeComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [UserSessionService],
     }).compileComponents();
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
     userSession = TestBed.inject(UserSessionService);
     httpMock = TestBed.inject(HttpTestingController);
-    router = TestBed.inject(Router);
-    fixture.detectChanges();
   });
 
   afterEach(() => {
     httpMock.verify();
   });
 
-  it('should show the create button if logged in', () => {
+  it('should automatically create and display a workout if logged in', () => {
     userSession.setUser({
       id: '1',
       role: UserRole.USER,
       email: 'a@b.com',
       updatedAt: '2025-01-01T00:00:00.000Z',
     });
+    const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
-    const button = fixture.debugElement.query(By.css('button'));
-    expect(button).toBeTruthy();
-  });
-
-  it('should POST and navigate to workout detail on success', () => {
-    spyOn(router, 'navigate');
-    userSession.setUser({
-      id: '1',
-      role: UserRole.USER,
-      email: 'a@b.com',
-      updatedAt: '2025-01-01T00:00:00.000Z',
-    });
-    fixture.detectChanges();
-    component.createWorkout();
     const req = httpMock.expectOne('http://localhost:8080/workouts');
     expect(req.request.method).toBe('POST');
     req.flush({
@@ -62,7 +41,12 @@ describe('HomeComponent', () => {
       date: '2025-05-26',
       notes: '',
     });
-    expect(router.navigate).toHaveBeenCalledWith(['/workouts', 'test-id']);
+    fixture.detectChanges();
+    // Check that the workout is displayed in the template
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("Today's Workout");
+    expect(compiled.textContent).toContain('2025-05-26');
+    expect(compiled.textContent).toContain('test-id');
   });
 
   it('should handle error on failed POST', () => {
@@ -73,8 +57,8 @@ describe('HomeComponent', () => {
       email: 'a@b.com',
       updatedAt: '2025-01-01T00:00:00.000Z',
     });
+    const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
-    component.createWorkout();
     const req = httpMock.expectOne('http://localhost:8080/workouts');
     req.flush('fail', { status: 500, statusText: 'Server Error' });
     expect(console.error).toHaveBeenCalled();

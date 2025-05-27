@@ -153,15 +153,12 @@ public class WorkoutController {
         // Check if a workout already exists for this user and date
         Optional<Workout> existingWorkoutOpt = workoutRepository.findByUserIdAndDate(user.getId(), workoutDate);
         if (existingWorkoutOpt.isPresent()) {
-            // If a workout exists for this date, return it with 201 Created
+            // If a workout exists for this date, return it with its exercises (like getWorkoutById)
             Workout existingWorkout = existingWorkoutOpt.get();
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "id", existingWorkout.getId(),
-                "date", existingWorkout.getDate(),
-                "notes", existingWorkout.getNotes(),
-                "createdAt", existingWorkout.getCreatedAt(),
-                "updatedAt", existingWorkout.getUpdatedAt()
-            ));
+            // Fetch all WorkoutExercise entities linked to this workout
+            List<WorkoutExercise> wes = workoutExerciseRepository.findByWorkoutId(existingWorkout.getId());
+            // Return the workout and its exercises using the DTO
+            return ResponseEntity.status(HttpStatus.CREATED).body(new WorkoutWithExercisesDTO(existingWorkout, wes));
         }
         // Otherwise, create a new workout for this date
         Workout workout = new Workout();

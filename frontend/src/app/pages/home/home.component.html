@@ -1,4 +1,14 @@
 <h1>Home</h1>
 
-<!-- Show button only if user is logged in -->
-<button *ngIf="userSession.isLoggedIn()" (click)="createWorkout()">Create New Workout</button>
+<!-- Show workout if user is logged in and workout is loaded -->
+<div *ngIf="userSession.isLoggedIn() && workout">
+  <h2>Today's Workout</h2>
+  <div>
+    <strong>Date:</strong> {{ workout.date }}<br />
+    <strong>Notes:</strong> {{ workout.notes || 'No notes' }}<br />
+    <strong>ID:</strong> {{ workout.id }}
+  </div>
+</div>
+
+<!-- Optionally, show a loading message -->
+<div *ngIf="userSession.isLoggedIn() && loading">Loading workout...</div>
