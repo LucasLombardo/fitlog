@@ -1,2 +1,8 @@
 <h1>workout:</h1>
-id: {{ id }}
+
+<div *ngIf="workout">
+  <div>Date: {{ workout.date }}</div>
+  <div>Notes: {{ workout.notes }}</div>
+</div>
+
+<button>Add Exercise</button>
