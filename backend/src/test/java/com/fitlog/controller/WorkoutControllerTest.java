@@ -292,4 +292,38 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.exercises").isArray())
                 .andExpect(jsonPath("$.exercises[0].exercise.name").value(exercise.getName()));
     }
+
+    @Test
+    void userCannotCreateDuplicateWorkoutForSameDate() throws Exception {
+        // Register and login user
+        String email = registerUser("dupuser");
+        MockCookie jwt = loginAndGetJwtCookie(email, testPassword);
+        String date = LocalDate.now().toString();
+        Map<String, Object> req = Map.of(
+                "date", date,
+                "notes", "First workout"
+        );
+        // Create first workout
+        MvcResult result1 = mockMvc.perform(post("/workouts")
+                .cookie(jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String firstId = objectMapper.readTree(result1.getResponse().getContentAsString()).get("id").asText();
+        // Try to create another workout with the same date
+        Map<String, Object> req2 = Map.of(
+                "date", date,
+                "notes", "Second workout attempt"
+        );
+        MvcResult result2 = mockMvc.perform(post("/workouts")
+                .cookie(jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req2)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String secondId = objectMapper.readTree(result2.getResponse().getContentAsString()).get("id").asText();
+        // The id should be the same, meaning the same workout is returned
+        org.junit.jupiter.api.Assertions.assertEquals(firstId, secondId, "Should return the same workout for duplicate date");
+    }
 } 

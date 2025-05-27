@@ -143,12 +143,29 @@ public class WorkoutController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not found."));
         }
         User user = userOpt.get();
-        Workout workout = new Workout();
+        LocalDate workoutDate;
         try {
-            workout.setDate(LocalDate.parse(request.date));
+            // Parse the date from the request
+            workoutDate = LocalDate.parse(request.date);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid date format. Use yyyy-MM-dd."));
         }
+        // Check if a workout already exists for this user and date
+        Optional<Workout> existingWorkoutOpt = workoutRepository.findByUserIdAndDate(user.getId(), workoutDate);
+        if (existingWorkoutOpt.isPresent()) {
+            // If a workout exists for this date, return it with 201 Created
+            Workout existingWorkout = existingWorkoutOpt.get();
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "id", existingWorkout.getId(),
+                "date", existingWorkout.getDate(),
+                "notes", existingWorkout.getNotes(),
+                "createdAt", existingWorkout.getCreatedAt(),
+                "updatedAt", existingWorkout.getUpdatedAt()
+            ));
+        }
+        // Otherwise, create a new workout for this date
+        Workout workout = new Workout();
+        workout.setDate(workoutDate);
         workout.setNotes(request.notes);
         workout.setUser(user);
         workoutRepository.save(workout);
