@@ -5,6 +5,9 @@ import com.fitlog.entity.Workout;
 import com.fitlog.repository.WorkoutRepository;
 import com.fitlog.repository.UserRepository;
 import com.fitlog.repository.WorkoutExerciseRepository;
+import com.fitlog.entity.Exercise;
+import com.fitlog.repository.ExerciseRepository;
+import com.fitlog.entity.WorkoutExercise;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,9 @@ public class WorkoutControllerTest {
 
     @Autowired
     private WorkoutExerciseRepository workoutExerciseRepository;
+
+    @Autowired
+    private ExerciseRepository exerciseRepository;
 
     private String testPassword = "testpassword";
 
@@ -203,7 +209,7 @@ public class WorkoutControllerTest {
         own.setDate(LocalDate.now());
         own.setNotes("Mine");
         own.setUser(userRepository.findByEmail(email).get());
-        workoutRepository.save(own);
+        own = workoutRepository.save(own);
         // Create workout for other
         Workout other = new Workout();
         other.setDate(LocalDate.now());
@@ -213,7 +219,8 @@ public class WorkoutControllerTest {
         mockMvc.perform(get("/workouts").cookie(jwt))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.notes=='Mine')]").exists())
-                .andExpect(jsonPath("$[?(@.notes=='Not mine')]").doesNotExist());
+                .andExpect(jsonPath("$[?(@.notes=='Not mine')]").doesNotExist())
+                .andExpect(jsonPath("$[0].exercises").isArray());
     }
 
     @Test
@@ -228,7 +235,8 @@ public class WorkoutControllerTest {
         own = workoutRepository.save(own);
         mockMvc.perform(get("/workouts/" + own.getId()).cookie(jwt))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.notes").value("Mine"));
+                .andExpect(jsonPath("$.notes").value("Mine"))
+                .andExpect(jsonPath("$.exercises").isArray());
     }
 
     @Test
@@ -244,5 +252,44 @@ public class WorkoutControllerTest {
         other = workoutRepository.save(other);
         mockMvc.perform(get("/workouts/" + other.getId()).cookie(jwt))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getWorkoutWithExercisesReturnsNestedData() throws Exception {
+        String email = registerUser("user");
+        MockCookie jwt = loginAndGetJwtCookie(email, testPassword);
+        // Create workout
+        Workout workout = new Workout();
+        workout.setDate(LocalDate.now());
+        workout.setNotes("With exercises");
+        workout.setUser(userRepository.findByEmail(email).get());
+        workout = workoutRepository.save(workout);
+        // Create exercise
+        Exercise exercise = new Exercise();
+        exercise.setName("Bench Press" + UUID.randomUUID());
+        exercise.setMuscleGroups("Chest");
+        exercise.setPublic(true);
+        exercise.setActive(true);
+        exercise.setNotes("Test exercise");
+        exercise.setCreatedBy(userRepository.findByEmail(email).get());
+        exercise = exerciseRepository.save(exercise);
+        // Create workout exercise
+        WorkoutExercise we = new WorkoutExercise();
+        we.setWorkout(workout);
+        we.setExercise(exercise);
+        we.setPosition(1);
+        we.setSets("[{\"reps\":10,\"weight\":100}]");
+        we.setNotes("First set");
+        workoutExerciseRepository.save(we);
+        // GET all workouts
+        mockMvc.perform(get("/workouts").cookie(jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].exercises").isArray())
+                .andExpect(jsonPath("$[0].exercises[0].exercise.name").value(exercise.getName()));
+        // GET single workout
+        mockMvc.perform(get("/workouts/" + workout.getId()).cookie(jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.exercises").isArray())
+                .andExpect(jsonPath("$.exercises[0].exercise.name").value(exercise.getName()));
     }
 } 

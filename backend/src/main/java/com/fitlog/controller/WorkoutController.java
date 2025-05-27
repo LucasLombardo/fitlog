@@ -15,6 +15,9 @@ import java.util.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
+import com.fitlog.entity.WorkoutExercise;
+import com.fitlog.entity.Exercise;
+import com.fitlog.repository.WorkoutExerciseRepository;
 
 // Controller for workout-related endpoints
 @Tag(name = "Workout", description = "Operations related to workouts.")
@@ -24,12 +27,14 @@ public class WorkoutController {
     private final WorkoutRepository workoutRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final WorkoutExerciseRepository workoutExerciseRepository;
 
     @Autowired
-    public WorkoutController(WorkoutRepository workoutRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public WorkoutController(WorkoutRepository workoutRepository, UserRepository userRepository, JwtUtil jwtUtil, WorkoutExerciseRepository workoutExerciseRepository) {
         this.workoutRepository = workoutRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.workoutExerciseRepository = workoutExerciseRepository;
     }
 
     // Helper method to extract user info from JWT (from header or cookie)
@@ -65,6 +70,58 @@ public class WorkoutController {
     public static class WorkoutRequest {
         public String date; // ISO format (yyyy-MM-dd)
         public String notes;
+    }
+
+    // DTO for Exercise (to avoid exposing entity directly)
+    public static class ExerciseDTO {
+        public UUID id;
+        public String name;
+        public String muscleGroups;
+        public boolean isPublic;
+        public boolean isActive;
+        public String notes;
+        public ExerciseDTO(Exercise e) {
+            this.id = e.getId();
+            this.name = e.getName();
+            this.muscleGroups = e.getMuscleGroups();
+            this.isPublic = e.isPublic();
+            this.isActive = e.isActive();
+            this.notes = e.getNotes();
+        }
+    }
+
+    // DTO for WorkoutExercise (to avoid exposing entity directly)
+    public static class WorkoutExerciseDTO {
+        public UUID id;
+        public int position;
+        public String sets;
+        public String notes;
+        public ExerciseDTO exercise;
+        public WorkoutExerciseDTO(WorkoutExercise we) {
+            this.id = we.getId();
+            this.position = we.getPosition();
+            this.sets = we.getSets();
+            this.notes = we.getNotes();
+            this.exercise = new ExerciseDTO(we.getExercise());
+        }
+    }
+
+    // DTO for Workout with exercises
+    public static class WorkoutWithExercisesDTO {
+        public UUID id;
+        public String date;
+        public String notes;
+        public String createdAt;
+        public String updatedAt;
+        public List<WorkoutExerciseDTO> exercises;
+        public WorkoutWithExercisesDTO(Workout w, List<WorkoutExercise> wes) {
+            this.id = w.getId();
+            this.date = w.getDate().toString();
+            this.notes = w.getNotes();
+            this.createdAt = w.getCreatedAt().toString();
+            this.updatedAt = w.getUpdatedAt().toString();
+            this.exercises = wes.stream().map(WorkoutExerciseDTO::new).toList();
+        }
     }
 
     /**
@@ -172,9 +229,9 @@ public class WorkoutController {
     }
 
     /**
-     * Get all workouts for the current user.
+     * Get all workouts for the current user, including exercises and their details.
      */
-    @Operation(summary = "Get all workouts", description = "Get all workouts associated with the current user.")
+    @Operation(summary = "Get all workouts", description = "Get all workouts associated with the current user, including exercises.")
     @GetMapping
     public ResponseEntity<?> getWorkouts(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
@@ -185,13 +242,18 @@ public class WorkoutController {
         }
         UserInfo userInfo = userInfoOpt.get();
         List<Workout> workouts = workoutRepository.findByUserId(userInfo.userId);
-        return ResponseEntity.ok(workouts);
+        // For each workout, fetch its exercises
+        List<WorkoutWithExercisesDTO> result = workouts.stream().map(w -> {
+            List<WorkoutExercise> wes = workoutExerciseRepository.findByWorkoutId(w.getId());
+            return new WorkoutWithExercisesDTO(w, wes);
+        }).toList();
+        return ResponseEntity.ok(result);
     }
 
     /**
-     * Get a single workout by ID. Must be owned by current user.
+     * Get a single workout by ID, including exercises and their details. Must be owned by current user.
      */
-    @Operation(summary = "Get single workout", description = "Get a single workout by ID. Must be owned by current user.")
+    @Operation(summary = "Get single workout", description = "Get a single workout by ID, including exercises. Must be owned by current user.")
     @GetMapping("/{id}")
     public ResponseEntity<?> getWorkoutById(
             @PathVariable UUID id,
@@ -210,6 +272,7 @@ public class WorkoutController {
         if (!workout.getUser().getId().equals(userInfo.userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "You are not allowed to access this workout."));
         }
-        return ResponseEntity.ok(workout);
+        List<WorkoutExercise> wes = workoutExerciseRepository.findByWorkoutId(workout.getId());
+        return ResponseEntity.ok(new WorkoutWithExercisesDTO(workout, wes));
     }
 } 
