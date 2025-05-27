@@ -1,14 +1,23 @@
-<form (ngSubmit)="login()">
-  <label>
-    Email:
-    <input type="email" name="email" [(ngModel)]="email" required />
-  </label>
-  <br />
-  <label>
-    Password:
-    <input type="password" name="password" [(ngModel)]="password" required />
-  </label>
-  <br />
-  <button type="submit">Login</button>
-</form>
-<p *ngIf="message">{{ message }}</p>
+<main>
+  <h1>Log In</h1>
+  <form (ngSubmit)="login()" class="login-form">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" name="email" [(ngModel)]="email" required />
+    </mat-form-field>
+    <br />
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" name="password" [(ngModel)]="password" required />
+    </mat-form-field>
+    <br />
+    <button mat-raised-button color="primary" type="submit">Login</button>
+    <div class="forgot-password">
+      <button mat-button type="button" (click)="forgotPassword()">Forgot Password?</button>
+    </div>
+    <div class="signup">
+      <span>Don't have an account?</span>
+      <button mat-button type="button" (click)="signUp()">Sign Up</button>
+    </div>
+  </form>
+</main>

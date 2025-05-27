@@ -1,5 +1,6 @@
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter, Router, withDisabledInitialNavigation } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { UserRole } from '../../models/user.model';
@@ -30,6 +31,7 @@ describe('LoginComponent logic', () => {
   let component: LoginComponent;
   let userSession: UserSessionService;
   let router: Partial<Router>;
+  let snackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,7 +40,8 @@ describe('LoginComponent logic', () => {
     userSession = TestBed.inject(UserSessionService);
     spyOn(userSession, 'login');
     router = { navigate: jasmine.createSpy() };
-    component = new LoginComponent({} as HttpClient, router as Router, userSession);
+    snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    component = new LoginComponent({} as HttpClient, router as Router, userSession, snackBar);
   });
 
   it('should store user info and navigate on successful login', () => {
@@ -55,15 +58,11 @@ describe('LoginComponent logic', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('should set failure message if login fails', () => {
+  it('should show snackbar if login fails', () => {
     (userSession.login as jasmine.Spy).and.returnValue(throwError(() => new Error('fail')));
     component.login();
-    expect(component.message).toContain('failure');
-  });
-
-  it('should set failure message if response has no user', () => {
-    (userSession.login as jasmine.Spy).and.returnValue(throwError(() => new Error('fail')));
-    component.login();
-    expect(component.message).toContain('failure');
+    expect(snackBar.open).toHaveBeenCalledWith('Login failed: invalid credentials', 'Close', {
+      duration: 3000,
+    });
   });
 });
