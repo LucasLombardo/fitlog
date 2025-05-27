@@ -55,4 +55,15 @@ describe('WorkoutService', () => {
     expect(req.request.withCredentials).toBeTrue();
     req.flush([mockWorkout]);
   });
+
+  it('should add an exercise to a workout', () => {
+    service.addWorkoutExercise('1', '2').subscribe(response => {
+      expect(response).toBeNull();
+    });
+    const req = httpMock.expectOne('http://localhost:8080/workout_exercises');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ workoutId: '1', exerciseId: '2', sets: '', notes: '' });
+    expect(req.request.withCredentials).toBeTrue();
+    req.flush(null);
+  });
 });

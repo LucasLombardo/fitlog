@@ -1,0 +1,13 @@
+<h1>Add Exercise</h1>
+<!-- Display the workoutId passed from the previous page -->
+<div *ngIf="workoutId">Workout ID: {{ workoutId }}</div>
+<div *ngIf="!workoutId">No workout selected.</div>
+
+<div *ngIf="exercises.length > 0; else noExercises">
+  <div *ngFor="let exercise of exercises">
+    <button (click)="addWorkoutExercise(exercise.id)">{{ exercise.name }}</button>
+  </div>
+</div>
+<ng-template #noExercises>
+  <p>No exercises found.</p>
+</ng-template> 

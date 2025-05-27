@@ -28,4 +28,8 @@ export class WorkoutService {
   deleteWorkoutById(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/workouts/${id}`, { withCredentials: true });
   }
+
+  addWorkoutExercise(workoutId: string, exerciseId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/workout_exercises`, { workoutId, exerciseId, sets: "", notes: "" }, { withCredentials: true });
+  }
 }
