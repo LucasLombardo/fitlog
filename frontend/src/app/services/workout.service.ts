@@ -5,17 +5,27 @@ import { Workout } from '../models/workout.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorkoutService {
-  private apiUrl = 'http://localhost:8080/workouts';
+  private apiUrl = 'http://localhost:8080';
 
   constructor(private http: HttpClient) {}
 
+  createWorkout(workout: Workout): Observable<Workout> {
+    return this.http.post<Workout>(`${this.apiUrl}/workouts`, workout, { withCredentials: true });
+  }
+
   getWorkoutById(id: string): Observable<Workout> {
-    // Calls GET http://localhost:8080/workouts/{id}
-    return this.http.get<Workout>(`${this.apiUrl}/${id}`, { withCredentials: true });
+    return this.http.get<Workout>(`${this.apiUrl}/workouts/${id}`, { withCredentials: true });
   }
 
   getAllWorkouts(): Observable<Workout[]> {
-    // Calls GET http://localhost:8080/workouts
-    return this.http.get<Workout[]>(this.apiUrl, { withCredentials: true });
+    return this.http.get<Workout[]>(`${this.apiUrl}/workouts`, { withCredentials: true });
+  }
+
+  putWorkoutById(id: string, workout: Workout): Observable<Workout> {
+    return this.http.put<Workout>(`${this.apiUrl}/workouts/${id}`, workout, { withCredentials: true });
+  }
+
+  deleteWorkoutById(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/workouts/${id}`, { withCredentials: true });
   }
 }
