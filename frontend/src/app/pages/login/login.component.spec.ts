@@ -1,6 +1,6 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, withDisabledInitialNavigation } from '@angular/router';
+import { provideRouter, Router, withDisabledInitialNavigation } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { UserRole } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
@@ -29,16 +29,16 @@ describe('LoginComponent', () => {
 describe('LoginComponent logic', () => {
   let component: LoginComponent;
   let userSession: UserSessionService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let http: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let router: any;
+  let router: Partial<Router>;
 
   beforeEach(() => {
-    userSession = new UserSessionService();
-    http = { post: jasmine.createSpy() };
+    TestBed.configureTestingModule({
+      providers: [UserSessionService, provideHttpClient()],
+    });
+    userSession = TestBed.inject(UserSessionService);
+    spyOn(userSession, 'login');
     router = { navigate: jasmine.createSpy() };
-    component = new LoginComponent(http, router, userSession);
+    component = new LoginComponent({} as HttpClient, router as Router, userSession);
   });
 
   it('should store user info and navigate on successful login', () => {
@@ -48,23 +48,21 @@ describe('LoginComponent logic', () => {
       email: 'a@b.com',
       updatedAt: '2025-01-01T00:00:00.000Z',
     };
-    http.post.and.returnValue(of({ user }));
+    (userSession.login as jasmine.Spy).and.returnValue(of(user));
     component.email = 'a@b.com';
     component.password = 'pw';
     component.login();
-    expect(userSession.isLoggedIn()).toBeTrue();
-    expect(userSession.getUser()).toEqual(user);
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 
   it('should set failure message if login fails', () => {
-    http.post.and.returnValue(throwError(() => new Error('fail')));
+    (userSession.login as jasmine.Spy).and.returnValue(throwError(() => new Error('fail')));
     component.login();
     expect(component.message).toContain('failure');
   });
 
   it('should set failure message if response has no user', () => {
-    http.post.and.returnValue(of({}));
+    (userSession.login as jasmine.Spy).and.returnValue(throwError(() => new Error('fail')));
     component.login();
     expect(component.message).toContain('failure');
   });

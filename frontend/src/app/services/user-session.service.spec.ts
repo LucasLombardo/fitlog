@@ -1,10 +1,17 @@
+import { provideHttpClient } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
 import { UserRole } from '../models/user.model';
 import { UserSessionService } from './user-session.service';
 
 describe('UserSessionService', () => {
   let service: UserSessionService;
   beforeEach(() => {
-    service = new UserSessionService();
+    // Clear localStorage to avoid session persistence between tests
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [UserSessionService, provideHttpClient()],
+    });
+    service = TestBed.inject(UserSessionService);
   });
   it('should set and get user and login status', () => {
     expect(service.isLoggedIn()).toBeFalse();

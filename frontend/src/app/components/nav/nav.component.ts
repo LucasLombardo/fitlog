@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { UserSessionService } from '../../services/user-session.service';
 
 @Component({
@@ -11,10 +12,17 @@ import { UserSessionService } from '../../services/user-session.service';
   styleUrl: './nav.component.scss',
 })
 export class NavComponent {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   constructor(public userSession: UserSessionService) {}
 
+  /**
+   * Logs out the user by calling the user session service and routing home.
+   */
   logout() {
-    console.log('logout');
-    // this.userSession.logout();
+    this.userSession.logout().subscribe(() => {
+      this.router.navigate(['/']);
+    });
   }
 }

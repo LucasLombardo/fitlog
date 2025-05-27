@@ -187,6 +187,37 @@ public class UserController {
     }
 
     /**
+     * Endpoint for user logout.
+     * Removes the JWT cookie from the browser by setting it with maxAge=0 and HttpOnly.
+     * This effectively logs the user out on the client side.
+     *
+     * Security: Always use HttpOnly and Secure flags for cookies.
+     */
+    @Operation(
+        summary = "User logout",
+        description = "Logs out the user by removing the JWT cookie.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Logout successful, JWT cookie removed.")
+        }
+    )
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // To log out, set the JWT cookie with maxAge=0 (expires immediately)
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("jwt", "")
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("Strict")
+            .maxAge(0) // Expire immediately
+            .build();
+
+        // Return a response with the expired cookie and a message
+        return ResponseEntity.ok()
+            .header(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(Map.of("message", "Logout successful. JWT cookie removed."));
+    }
+
+    /**
      * Endpoint to delete a user by ID.
      * In a real app, restrict this to admins or the user themselves.
      */

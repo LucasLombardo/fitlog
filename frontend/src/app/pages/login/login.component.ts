@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { User } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
 
 @Component({
@@ -28,31 +27,13 @@ export class LoginComponent {
   ) {}
 
   login() {
-    interface LoginResponse {
-      user?: User;
-    }
-    this.http
-      .post<LoginResponse>(
-        this.loginUrl,
-        { email: this.email, password: this.password },
-        { withCredentials: true },
-      )
-      .subscribe({
-        next: response => {
-          if (response && response.user) {
-            const user: User = {
-              id: response.user.id,
-              role: response.user.role,
-              email: response.user.email,
-              updatedAt: response.user.updatedAt || new Date().toISOString(),
-            };
-            this.userSession.setUser(user);
-            this.router.navigate(['/']);
-          } else {
-            this.message = 'failure :('; // fallback if no user in response
-          }
-        },
-        error: () => (this.message = 'failure :('),
-      });
+    this.userSession.login(this.email, this.password).subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.message = 'failure :('; // fallback if login fails
+      },
+    });
   }
 }

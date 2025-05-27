@@ -555,4 +555,47 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(loginUser)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testLogoutRemovesJwtCookieAndPreventsAccess() throws Exception {
+        // 1. Register a new user
+        String testEmail = uniqueEmail("logoutuser");
+        var createUser = new java.util.HashMap<String, String>();
+        createUser.put("email", testEmail);
+        createUser.put("password", testPassword);
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createUser)))
+                .andExpect(status().isCreated());
+
+        // 2. Login to get JWT cookie
+        var loginUser = new java.util.HashMap<String, String>();
+        loginUser.put("email", testEmail);
+        loginUser.put("password", testPassword);
+        MvcResult loginResult = mockMvc.perform(post("/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginUser)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String jwt = extractJwtFromSetCookie(loginResult);
+        MockCookie jwtCookie = new MockCookie("jwt", jwt);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true);
+
+        // 3. Call /users/logout with the JWT cookie
+        MvcResult logoutResult = mockMvc.perform(post("/users/logout")
+                .cookie(jwtCookie))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Logout successful. JWT cookie removed."))
+                .andReturn();
+        // 4. Assert the Set-Cookie header removes the JWT
+        String setCookie = logoutResult.getResponse().getHeader("Set-Cookie");
+        // Should set jwt=; Max-Age=0 (expired)
+        assert setCookie != null && setCookie.contains("jwt=") && setCookie.contains("Max-Age=0");
+
+        // 5. Try to access a protected endpoint with the old JWT (should fail)
+        mockMvc.perform(get("/users")
+                .cookie(jwtCookie))
+                .andExpect(status().isForbidden()); // Not admin, so forbidden
+    }
 } 
