@@ -2,12 +2,7 @@
 
 <!-- Show workout if user is logged in and workout is loaded -->
 <div *ngIf="userSession.isLoggedIn() && workout">
-  <h2>Today's Workout</h2>
-  <div>
-    <strong>Date:</strong> {{ workout.date }}<br />
-    <strong>Notes:</strong> {{ workout.notes || 'No notes' }}<br />
-    <strong>ID:</strong> {{ workout.id }}
-  </div>
+  <app-workout [workout]="workout"></app-workout>
 </div>
 
 <!-- Optionally, show a loading message -->

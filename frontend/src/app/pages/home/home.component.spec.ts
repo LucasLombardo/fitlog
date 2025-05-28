@@ -44,9 +44,8 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     // Check that the workout is displayed in the template
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Today's Workout");
-    expect(compiled.textContent).toContain('2025-05-26');
-    expect(compiled.textContent).toContain('test-id');
+    expect(compiled.textContent).toContain('Home');
+    expect(compiled.textContent).toContain('Add Exercise');
   });
 
   it('should handle error on failed POST', () => {

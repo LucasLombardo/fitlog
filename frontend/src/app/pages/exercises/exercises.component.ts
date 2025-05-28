@@ -13,6 +13,7 @@ import { WorkoutService } from '../../services/workout.service';
 })
 export class ExercisesComponent implements OnInit {
   workoutId: string | null = null;
+  fromHome = false;
   exercises: Exercise[] = [];
 
   constructor(
@@ -20,9 +21,10 @@ export class ExercisesComponent implements OnInit {
     private exercisesService: ExercisesService,
     private workoutService: WorkoutService,
   ) {
-    // Access the navigation state to get the workoutId
+    // Access the navigation state to get the workoutId and fromHome
     const nav = this.router.getCurrentNavigation();
     this.workoutId = nav?.extras.state?.['workoutId'] || null;
+    this.fromHome = nav?.extras.state?.['fromHome'] || false;
   }
 
   ngOnInit(): void {
@@ -37,7 +39,11 @@ export class ExercisesComponent implements OnInit {
     this.workoutService.addWorkoutExercise(this.workoutId!, exerciseId).subscribe({
       next: () => {
         console.log('Workout exercise added');
-        this.router.navigate([`/workouts/${this.workoutId}`]);
+        if (this.fromHome) {
+          this.router.navigate([`/`]);
+        } else {
+          this.router.navigate([`/workouts/${this.workoutId}`]);
+        }
       },
       error: err => console.error('Failed to add workout exercise', err),
     });

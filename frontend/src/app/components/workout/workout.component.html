@@ -1,0 +1,24 @@
+<div class="workout-container">
+  <!-- <p><strong>ID:</strong> {{ workout?.id }}</p> -->
+
+  <!-- Display exercises as clickable Angular Material cards -->
+  <mat-card
+    *ngFor="let ex of exercises"
+    class="exercise-card is-focusable"
+    role="button"
+    tabindex="0"
+    (click)="onExerciseClick(ex)"
+    (keydown.enter)="onExerciseClick(ex)"
+    (keydown.space)="onExerciseClick(ex); $event.preventDefault()"
+  >
+    <mat-card-title>{{ ex.exercise.name }}</mat-card-title>
+    <mat-card-content>
+      <div><strong>Sets:</strong> {{ ex.sets || 'N/A' }}</div>
+      <div><strong>Notes:</strong> {{ ex.notes || 'No notes' }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <button mat-raised-button color="primary" (click)="addExercise()">Add Exercise</button>
+
+  <!-- <p><strong>Notes:</strong> {{ workout?.notes || 'No notes' }}<br /></p> -->
+</div>

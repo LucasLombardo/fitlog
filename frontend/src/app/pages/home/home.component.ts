@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { Workout } from '../../models/workout.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { WorkoutService } from '../../services/workout.service';
+import { WorkoutComponent } from '../../components/workout/workout.component';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [CommonModule, WorkoutComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
