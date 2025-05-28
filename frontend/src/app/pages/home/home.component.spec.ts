@@ -44,7 +44,7 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     // Check that the workout is displayed in the template
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Home');
+    expect(compiled.textContent).toContain('May 26, 2025');
     expect(compiled.textContent).toContain('Add Exercise');
   });
 

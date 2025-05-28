@@ -1,53 +1,53 @@
 header {
-    position: relative;
-    button {
-        position: absolute;
-        right: 0;
-        top: -20%;
-    }
+  position: relative;
+  button {
+    position: absolute;
+    right: 0;
+    top: -20%;
+  }
 }
 .workout-container {
-    max-width: 26rem;
-    margin: 0 auto;
-    padding-bottom: 2em;
-    .mdc-list-item {
-        height: auto;
-        border: 0.5px solid #e0e0e0;
-        margin-bottom: 1em;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding-bottom: 2em;
+  .mdc-list-item {
+    height: auto;
+    border: 0.5px solid #e0e0e0;
+    margin-bottom: 1em;
+  }
+  .add-exercise-button {
+    width: 100%;
+  }
+  .exercise-card {
+    text-align: center;
+    .exercise-name {
+      font-weight: bold;
+      border-bottom: 0.5px solid #e0e0e0;
     }
-    .add-exercise-button {
-        width: 100%;
-    }
-    .exercise-card {
-        text-align: center;
-        .exercise-name {
-            font-weight: bold;
-            border-bottom: 0.5px solid #e0e0e0;
+    .exercise-sets {
+      font-size: 0.8em;
+      div {
+        display: flex;
+        justify-content: space-between;
+        max-width: 40%;
+        margin: 0 auto;
+        position: relative;
+        &::after {
+          // vertical line splitting the sets
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0.5px;
+          height: 100%;
+          background-color: #e0e0e0;
+          z-index: 1;
         }
-        .exercise-sets {
-            font-size: 0.8em;
-            div {
-                display: flex;
-                justify-content: space-between;
-                max-width: 40%;
-                margin: 0 auto;
-                position: relative;
-                &::after {
-                    // vertical line splitting the sets
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 0.5px;
-                    height: 100%;
-                    background-color: #e0e0e0;
-                    z-index: 1;
-                }
-            }
-            strong {
-                display: inline-block;
-            }
-        }
+      }
+      strong {
+        display: inline-block;
+      }
     }
+  }
 }

@@ -1,8 +1,6 @@
 <main>
   <header>
-    <h1 class="title">
-      Exercises
-    </h1>
+    <h1 class="title">Exercises</h1>
     <button mat-icon-button color="primary" (click)="newExercise()" style="color: #43a047">
       <mat-icon>add</mat-icon>
     </button>
@@ -22,10 +20,10 @@
       </mat-list-item>
     </mat-action-list>
   </div>
-  <button class="add-exercise-button" mat-raised-button color="primary" (click)="newExercise()">Add New Exercise</button>
+  <button class="add-exercise-button" mat-raised-button color="primary" (click)="newExercise()">
+    Add New Exercise
+  </button>
   <ng-template #noExercises>
     <p>No exercises found.</p>
   </ng-template>
-
-  
 </main>

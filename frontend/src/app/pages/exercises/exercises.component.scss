@@ -1,29 +1,29 @@
 header {
-    position: relative;
-    button {
-        position: absolute;
-        right: 0;
-        top: -20%;
-    }
+  position: relative;
+  button {
+    position: absolute;
+    right: 0;
+    top: -20%;
+  }
 }
 main {
-    max-width: 26rem;
-    margin: 0 auto;
-    padding-bottom: 2rem;
-    .mat-mdc-list-item {
-        text-align: center !important;
-    }
-    .mat-mdc-action-list {
-        border: 0.5px solid #e0e0e0;
-        padding: 0;
-    }
-    .mat-mdc-list-item:not(:last-child) {
-        border-bottom: 0.5px solid #e0e0e0;
-        border-radius: 0;
-    }
+  max-width: 26rem;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+  .mat-mdc-list-item {
+    text-align: center !important;
+  }
+  .mat-mdc-action-list {
+    border: 0.5px solid #e0e0e0;
+    padding: 0;
+  }
+  .mat-mdc-list-item:not(:last-child) {
+    border-bottom: 0.5px solid #e0e0e0;
+    border-radius: 0;
+  }
 
-    .add-exercise-button {
-        width: 100%;
-        margin-top: 1rem;
-    }
+  .add-exercise-button {
+    width: 100%;
+    margin-top: 1rem;
+  }
 }

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { WorkoutComponent } from '../../components/workout/workout.component';
 import { Workout } from '../../models/workout.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { WorkoutService } from '../../services/workout.service';
-import { WorkoutComponent } from '../../components/workout/workout.component';
 
 @Component({
   selector: 'app-home',
