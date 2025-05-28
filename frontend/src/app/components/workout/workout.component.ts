@@ -1,13 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Workout, WorkoutExercise } from '../../models/workout.model';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-workout',
-  imports: [CommonModule, MatCardModule, MatButtonModule],
+  imports: [CommonModule, MatButtonModule, MatListModule, MatIconModule],
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.scss'
 })

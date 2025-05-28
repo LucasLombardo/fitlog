@@ -1,24 +1,35 @@
 <div class="workout-container">
   <!-- <p><strong>ID:</strong> {{ workout?.id }}</p> -->
-
+  <header>
+    <h1 class="title">{{ workout?.date | date: 'longDate' }}</h1>
+    <button mat-icon-button color="primary" (click)="addExercise()" style="color: #43a047">
+      <mat-icon>add</mat-icon>
+    </button>
+  </header>
   <!-- Display exercises as clickable Angular Material cards -->
-  <mat-card
-    *ngFor="let ex of exercises"
-    class="exercise-card is-focusable"
-    role="button"
-    tabindex="0"
-    (click)="onExerciseClick(ex)"
-    (keydown.enter)="onExerciseClick(ex)"
-    (keydown.space)="onExerciseClick(ex); $event.preventDefault()"
-  >
-    <mat-card-title>{{ ex.exercise.name }}</mat-card-title>
-    <mat-card-content>
-      <div><strong>Sets:</strong> {{ ex.sets || 'N/A' }}</div>
-      <div><strong>Notes:</strong> {{ ex.notes || 'No notes' }}</div>
-    </mat-card-content>
-  </mat-card>
 
-  <button mat-raised-button color="primary" (click)="addExercise()">Add Exercise</button>
+  <mat-action-list style="max-width: 400px; margin: 0 auto">
+    <mat-list-item
+      *ngFor="let ex of exercises"
+      class="exercise-card is-focusable"
+      role="button"
+      tabindex="0"
+      (click)="onExerciseClick(ex)"
+      (keydown.enter)="onExerciseClick(ex)"
+      (keydown.space)="onExerciseClick(ex); $event.preventDefault()"
+    >
+      <div class="exercise-name">{{ ex.exercise.name }}</div>
+      <div class="exercise-sets">
+        <div><strong>40lbs</strong>&nbsp;<span>6 reps</span></div>
+        <div><strong>40lbs</strong>&nbsp;<span>6 reps</span></div>
+        <div><strong>45lbs</strong>&nbsp;<span>5 reps</span></div>
+      </div>
+    </mat-list-item>
+  </mat-action-list>
+
+  <button class="add-exercise-button" mat-raised-button color="primary" (click)="addExercise()">
+    Add Exercise
+  </button>
 
   <!-- <p><strong>Notes:</strong> {{ workout?.notes || 'No notes' }}<br /></p> -->
 </div>
