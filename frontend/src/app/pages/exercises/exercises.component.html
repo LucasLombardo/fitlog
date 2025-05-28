@@ -1,13 +1,31 @@
-<h1>Add Exercise</h1>
-<!-- Display the workoutId passed from the previous page -->
-<div *ngIf="workoutId">Workout ID: {{ workoutId }}</div>
-<div *ngIf="!workoutId">No workout selected.</div>
-
-<div *ngIf="exercises.length > 0; else noExercises">
-  <div *ngFor="let exercise of exercises">
-    <button (click)="addWorkoutExercise(exercise.id)">{{ exercise.name }}</button>
+<main>
+  <header>
+    <h1 class="title">
+      Exercises
+    </h1>
+    <button mat-icon-button color="primary" (click)="newExercise()" style="color: #43a047">
+      <mat-icon>add</mat-icon>
+    </button>
+  </header>
+  <div *ngIf="exercises.length > 0; else noExercises">
+    <mat-action-list style="max-width: 400px; margin: 0 auto">
+      <mat-list-item
+        *ngFor="let exercise of exercises"
+        class="is-focusable"
+        role="button"
+        tabindex="0"
+        (click)="addWorkoutExercise(exercise.id)"
+        (keydown.enter)="addWorkoutExercise(exercise.id)"
+        (keydown.space)="addWorkoutExercise(exercise.id); $event.preventDefault()"
+      >
+        {{ exercise.name }}
+      </mat-list-item>
+    </mat-action-list>
   </div>
-</div>
-<ng-template #noExercises>
-  <p>No exercises found.</p>
-</ng-template>
+  <button class="add-exercise-button" mat-raised-button color="primary" (click)="newExercise()">Add New Exercise</button>
+  <ng-template #noExercises>
+    <p>No exercises found.</p>
+  </ng-template>
+
+  
+</main>

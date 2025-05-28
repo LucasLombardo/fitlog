@@ -4,12 +4,16 @@ import { Router } from '@angular/router';
 import { Exercise } from '../../models/exercise.model';
 import { ExercisesService } from '../../services/exercises.service';
 import { WorkoutService } from '../../services/workout.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-exercises',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatListModule, MatIconModule],
   templateUrl: './exercises.component.html',
+  styleUrl: './exercises.component.scss'
 })
 export class ExercisesComponent implements OnInit {
   workoutId: string | null = null;
@@ -47,5 +51,9 @@ export class ExercisesComponent implements OnInit {
       },
       error: err => console.error('Failed to add workout exercise', err),
     });
+  }
+
+  newExercise(): void {
+    console.log('newExercise', this.workoutId);
   }
 }

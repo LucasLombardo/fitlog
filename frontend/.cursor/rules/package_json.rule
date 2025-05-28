@@ -1,0 +1,2 @@
+# Cursor rule: package.json is located at @package.json in this directory
+package_json: @package.json 
