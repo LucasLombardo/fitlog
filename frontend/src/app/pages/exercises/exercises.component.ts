@@ -70,16 +70,22 @@ export class ExercisesComponent implements OnInit {
     return str.toLowerCase().replace(/[^a-z0-9]/g, '');
   }
 
+  /**
+   * Adds the selected exercise to the current workout, then redirects to the sets page for that workout exercise.
+   * Passes workoutId, exerciseId, and workoutExerciseId in the router state.
+   */
   addWorkoutExercise(exerciseId: string): void {
-    console.log('Workout ID:', this.workoutId, 'Exercise ID:', exerciseId);
-    this.workoutService.addWorkoutExercise(this.workoutId!, exerciseId).subscribe({
-      next: () => {
-        console.log('Workout exercise added');
-        if (this.fromHome) {
-          this.router.navigate([`/`]);
-        } else {
-          this.router.navigate([`/workouts/${this.workoutId}`]);
-        }
+    if (!this.workoutId) return;
+    this.workoutService.addWorkoutExercise(this.workoutId, exerciseId).subscribe({
+      next: (created) => {
+        // After creation, redirect to the sets page for this workout exercise
+        this.router.navigate(['/sets'], {
+          state: {
+            workoutId: this.workoutId,
+            exerciseId: exerciseId,
+            workoutExerciseId: created.id,
+          },
+        });
       },
       error: err => console.error('Failed to add workout exercise', err),
     });

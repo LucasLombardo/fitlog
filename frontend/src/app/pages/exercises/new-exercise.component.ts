@@ -58,10 +58,18 @@ export class NewExerciseComponent {
       const exercise = await firstValueFrom(
         this.exercisesService.createExercise({ name, muscleGroups, notes }),
       );
-      // 2. Add the exercise to the workout
-      await firstValueFrom(this.workoutService.addWorkoutExercise(this.workoutId, exercise.id));
-      // 3. Navigate to home on success
-      this.router.navigate(['/']);
+      // 2. Add the exercise to the workout and get the created workout exercise object
+      const workoutExercise = await firstValueFrom(
+        this.workoutService.addWorkoutExercise(this.workoutId, exercise.id)
+      );
+      // 3. Redirect to the sets page for this workout exercise
+      this.router.navigate(['/sets'], {
+        state: {
+          workoutId: this.workoutId,
+          exerciseId: exercise.id,
+          workoutExerciseId: workoutExercise.id,
+        },
+      });
     } catch (error) {
       // Show a user-friendly error message
       this.snackBar.open('Failed to create exercise or add to workout', 'Close', {

@@ -2,6 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { Workout } from '../models/workout.model';
 import { WorkoutService } from './workout.service';
+import { WorkoutExercise } from '../models/workout.model';
 
 const mockWorkout: Workout = {
   id: '1',
@@ -57,13 +58,27 @@ describe('WorkoutService', () => {
   });
 
   it('should add an exercise to a workout', () => {
+    const mockWorkoutExercise: WorkoutExercise = {
+      id: 'mockWexId',
+      position: 1,
+      sets: '',
+      notes: '',
+      exercise: {
+        id: '2',
+        name: 'Test Exercise',
+        muscleGroups: '',
+        isPublic: true,
+        isActive: true,
+        notes: '',
+      },
+    };
     service.addWorkoutExercise('1', '2').subscribe(response => {
-      expect(response).toBeNull();
+      expect(response).toEqual(jasmine.objectContaining({ id: 'mockWexId', position: 1 }));
     });
     const req = httpMock.expectOne('http://localhost:8080/workout_exercises');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ workoutId: '1', exerciseId: '2', sets: '', notes: '' });
+    expect(req.request.body).toEqual({ workoutId: '1', exerciseId: '2', sets: '', notes: '', position: 1 });
     expect(req.request.withCredentials).toBeTrue();
-    req.flush(null);
+    req.flush(mockWorkoutExercise);
   });
 });
