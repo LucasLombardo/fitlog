@@ -1,14 +1,18 @@
 <main>
   <header>
     <h1 class="title">Exercises</h1>
-    <button mat-icon-button color="primary" (click)="newExercise()" style="color: #43a047">
+    <button mat-icon-button color="primary" (click)="newExercise()">
       <mat-icon>add</mat-icon>
     </button>
   </header>
-  <div *ngIf="exercises.length > 0; else noExercises">
-    <mat-action-list style="max-width: 400px; margin: 0 auto">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Filter exercises</mat-label>
+    <input matInput [(ngModel)]="filter" placeholder="Type to filter by name or muscle group" />
+  </mat-form-field>
+  <div *ngIf="filteredExercises.length > 0; else noExercises">
+    <mat-action-list>
       <mat-list-item
-        *ngFor="let exercise of exercises"
+        *ngFor="let exercise of filteredExercises"
         class="is-focusable"
         role="button"
         tabindex="0"
