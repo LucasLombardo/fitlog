@@ -79,7 +79,10 @@ export class ExercisesComponent implements OnInit {
     });
   }
 
+  /**
+   * Navigates to the new exercise creation page, passing the current workoutId as router state.
+   */
   newExercise(): void {
-    console.log('newExercise', this.workoutId);
+    this.router.navigate(['/exercises/new'], { state: { workoutId: this.workoutId } });
   }
 }

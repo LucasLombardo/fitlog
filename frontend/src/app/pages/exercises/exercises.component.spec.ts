@@ -103,9 +103,9 @@ describe('ExercisesComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalled();
   });
 
-  it('should log when newExercise is called', () => {
-    spyOn(console, 'log');
+  it('should navigate to /exercises/new with workoutId in state when newExercise is called', () => {
+    component.workoutId = 'test-id';
     component.newExercise();
-    expect(console.log).toHaveBeenCalledWith('newExercise', component.workoutId);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/exercises/new'], { state: { workoutId: 'test-id' } });
   });
 }); 

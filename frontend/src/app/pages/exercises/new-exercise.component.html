@@ -1,0 +1,24 @@
+<form [formGroup]="exerciseForm" (ngSubmit)="createExercise()" class="exercise-form">
+  <!-- Exercise Name -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Exercise Name</mat-label>
+    <input matInput formControlName="name" required />
+  </mat-form-field>
+
+  <!-- Muscle Groups as plain input -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Muscle Groups (comma separated)</mat-label>
+    <input matInput formControlName="muscleGroups" placeholder="e.g. quadriceps,glutes,hamstrings" />
+  </mat-form-field>
+
+  <!-- Notes -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Notes</mat-label>
+    <textarea matInput formControlName="notes" rows="3"></textarea>
+  </mat-form-field>
+
+  <!-- Submit Button -->
+  <button mat-raised-button color="primary" type="submit" [disabled]="!exerciseForm.valid">
+    Create Exercise
+  </button>
+</form> 
