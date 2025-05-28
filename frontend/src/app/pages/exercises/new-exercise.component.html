@@ -8,7 +8,11 @@
   <!-- Muscle Groups as plain input -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Muscle Groups (comma separated)</mat-label>
-    <input matInput formControlName="muscleGroups" placeholder="e.g. quadriceps,glutes,hamstrings" />
+    <input
+      matInput
+      formControlName="muscleGroups"
+      placeholder="e.g. quadriceps,glutes,hamstrings"
+    />
   </mat-form-field>
 
   <!-- Notes -->
@@ -21,4 +25,4 @@
   <button mat-raised-button color="primary" type="submit" [disabled]="!exerciseForm.valid">
     Create Exercise
   </button>
-</form> 
+</form>

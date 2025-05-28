@@ -1,19 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
 import { Exercise } from '../../models/exercise.model';
 import { ExercisesService } from '../../services/exercises.service';
 import { WorkoutService } from '../../services/workout.service';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-exercises',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatListModule, MatIconModule, MatInputModule, FormsModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatListModule,
+    MatIconModule,
+    MatInputModule,
+    FormsModule,
+  ],
   templateUrl: './exercises.component.html',
   styleUrl: './exercises.component.scss',
 })
@@ -48,9 +55,10 @@ export class ExercisesComponent implements OnInit {
   get filteredExercises(): Exercise[] {
     if (!this.filter.trim()) return this.exercises;
     const normFilter = this.normalize(this.filter);
-    return this.exercises.filter(ex =>
-      this.normalize(ex.name).includes(normFilter) ||
-      this.normalize(ex.muscleGroups).includes(normFilter)
+    return this.exercises.filter(
+      ex =>
+        this.normalize(ex.name).includes(normFilter) ||
+        this.normalize(ex.muscleGroups).includes(normFilter),
     );
   }
 
@@ -59,9 +67,7 @@ export class ExercisesComponent implements OnInit {
    * @param str The string to normalize
    */
   private normalize(str: string): string {
-    return str
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '');
+    return str.toLowerCase().replace(/[^a-z0-9]/g, '');
   }
 
   addWorkoutExercise(exerciseId: string): void {

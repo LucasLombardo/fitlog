@@ -1,13 +1,10 @@
 <div class="workout-container">
-  <!-- <p><strong>ID:</strong> {{ workout?.id }}</p> -->
   <header>
     <h1 class="title">{{ workout?.date | date: 'longDate' }}</h1>
     <button mat-icon-button color="primary" (click)="addExercise()" style="color: #43a047">
       <mat-icon>add</mat-icon>
     </button>
   </header>
-  <!-- Display exercises as clickable Angular Material cards -->
-
   <mat-action-list style="max-width: 400px; margin: 0 auto">
     <mat-list-item
       *ngFor="let ex of exercises"
@@ -18,11 +15,14 @@
       (keydown.enter)="onExerciseClick(ex)"
       (keydown.space)="onExerciseClick(ex); $event.preventDefault()"
     >
-      <div class="exercise-name">{{ ex.exercise.name }}</div>
-      <div class="exercise-sets">
-        <div><strong>40lbs</strong>&nbsp;<span>6 reps</span></div>
-        <div><strong>40lbs</strong>&nbsp;<span>6 reps</span></div>
-        <div><strong>45lbs</strong>&nbsp;<span>5 reps</span></div>
+      <div class="exercise-name" [ngClass]="{ 'exercise-name--has-sets': hasSets(ex.sets) }">
+        {{ ex.exercise.name }}
+      </div>
+      <!-- Only display sets if they exist -->
+      <div class="exercise-sets" *ngIf="hasSets(ex.sets)">
+        <div *ngFor="let set of parseSets(ex.sets)">
+          <strong>{{ set.weight }}lbs</strong>&nbsp;<span>{{ set.reps }} reps</span>
+        </div>
       </div>
     </mat-list-item>
   </mat-action-list>
@@ -30,6 +30,6 @@
   <button class="add-exercise-button" mat-raised-button color="primary" (click)="addExercise()">
     Add Exercise
   </button>
-
+  <!-- TODO: Add notes -->
   <!-- <p><strong>Notes:</strong> {{ workout?.notes || 'No notes' }}<br /></p> -->
 </div>

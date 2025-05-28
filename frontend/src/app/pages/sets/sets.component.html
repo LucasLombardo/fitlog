@@ -1,0 +1,53 @@
+<main>
+  <h1 class="title">Sets</h1>
+
+  <!-- Weight input -->
+  <div>
+    <span>Weight (lbs):</span>
+    <button
+      mat-icon-button
+      color="primary"
+      aria-label="Decrease weight"
+      (click)="decrementWeight()"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <input matInput type="number" [(ngModel)]="weight" />
+    <button
+      mat-icon-button
+      color="primary"
+      aria-label="Increase weight"
+      (click)="incrementWeight()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Reps input -->
+  <div>
+    <span>Reps:</span>
+    <button mat-icon-button color="primary" aria-label="Decrease reps" (click)="decrementReps()">
+      <mat-icon>remove</mat-icon>
+    </button>
+    <input matInput type="number" [(ngModel)]="reps" />
+    <button mat-icon-button color="primary" aria-label="Increase reps" (click)="incrementReps()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Save button -->
+  <button mat-raised-button color="primary" (click)="saveSet()">Save</button>
+
+  <!-- Display sets -->
+  <div *ngIf="setsArray.length > 0" class="sets-container">
+    <div *ngFor="let set of setsArray; let i = index">
+      <span><strong>Weight:</strong> {{ set.weight }} lbs</span>&nbsp;
+      <span><strong>Reps:</strong> {{ set.reps }}</span>
+      <button mat-icon-button color="warn" aria-label="Delete set" (click)="deleteSet(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+  <button mat-stroked-button color="warn" (click)="removeExercise()">Remove Exercise</button>
+  <button mat-stroked-button color="primary" (click)="goHome()">Done</button>
+</main>

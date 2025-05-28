@@ -14,7 +14,7 @@ public class WorkoutExercise {
     private UUID id;
 
     // Reference to the workout (cascade on delete)
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "workout_id", nullable = false)
     private Workout workout;
 

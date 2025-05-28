@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ExercisesComponent } from './exercises.component';
-import { ExercisesService } from '../../services/exercises.service';
-import { WorkoutService } from '../../services/workout.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Exercise } from '../../models/exercise.model';
+import { ExercisesService } from '../../services/exercises.service';
+import { WorkoutService } from '../../services/workout.service';
+import { ExercisesComponent } from './exercises.component';
 
 // Mock data
 const mockExercises: Exercise[] = [
@@ -43,7 +43,9 @@ describe('ExercisesComponent', () => {
     exercisesServiceSpy = jasmine.createSpyObj('ExercisesService', ['getAllExercises']);
     workoutServiceSpy = jasmine.createSpyObj('WorkoutService', ['addWorkoutExercise']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate', 'getCurrentNavigation']);
-    routerSpy.getCurrentNavigation.and.returnValue({ extras: { state: {} } } as unknown as ReturnType<Router['getCurrentNavigation']>);
+    routerSpy.getCurrentNavigation.and.returnValue({
+      extras: { state: {} },
+    } as unknown as ReturnType<Router['getCurrentNavigation']>);
 
     await TestBed.configureTestingModule({
       imports: [ExercisesComponent],
@@ -106,6 +108,8 @@ describe('ExercisesComponent', () => {
   it('should navigate to /exercises/new with workoutId in state when newExercise is called', () => {
     component.workoutId = 'test-id';
     component.newExercise();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/exercises/new'], { state: { workoutId: 'test-id' } });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/exercises/new'], {
+      state: { workoutId: 'test-id' },
+    });
   });
-}); 
+});

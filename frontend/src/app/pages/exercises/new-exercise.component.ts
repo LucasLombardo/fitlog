@@ -1,16 +1,15 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ExercisesService } from '../../services/exercises.service';
 import { WorkoutService } from '../../services/workout.service';
-import { firstValueFrom } from 'rxjs';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-new-exercise',
@@ -22,7 +21,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ],
   templateUrl: './new-exercise.component.html',
   styleUrl: './new-exercise.component.scss',
@@ -36,7 +35,7 @@ export class NewExerciseComponent {
     private router: Router,
     private exercisesService: ExercisesService,
     private workoutService: WorkoutService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) {
     // Get workoutId from router state
     const nav = this.router.getCurrentNavigation();
@@ -45,7 +44,7 @@ export class NewExerciseComponent {
     this.exerciseForm = this.fb.group({
       name: ['', Validators.required],
       muscleGroups: [''],
-      notes: ['']
+      notes: [''],
     });
   }
 
@@ -57,12 +56,10 @@ export class NewExerciseComponent {
     try {
       // 1. Create the exercise
       const exercise = await firstValueFrom(
-        this.exercisesService.createExercise({ name, muscleGroups, notes })
+        this.exercisesService.createExercise({ name, muscleGroups, notes }),
       );
       // 2. Add the exercise to the workout
-      await firstValueFrom(
-        this.workoutService.addWorkoutExercise(this.workoutId, exercise.id)
-      );
+      await firstValueFrom(this.workoutService.addWorkoutExercise(this.workoutId, exercise.id));
       // 3. Navigate to home on success
       this.router.navigate(['/']);
     } catch (error) {
@@ -73,4 +70,4 @@ export class NewExerciseComponent {
       console.error('Failed to create exercise or add to workout:', error);
     }
   }
-} 
+}

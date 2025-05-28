@@ -24,8 +24,15 @@ export class WorkoutComponent {
   }
 
   onExerciseClick(ex: WorkoutExercise) {
-    // Log the id of the clicked WorkoutExercise
-    console.log(ex.id);
+    if (this.workout?.id && ex.exercise?.id && ex.id) {
+      this.router.navigate(['/sets'], {
+        state: {
+          workoutId: this.workout.id,
+          exerciseId: ex.exercise.id,
+          workoutExerciseId: ex.id,
+        },
+      });
+    }
   }
 
   addExercise() {
@@ -34,5 +41,30 @@ export class WorkoutComponent {
         state: { workoutId: this.workout.id, fromHome: true },
       });
     }
+  }
+
+  /**
+   * Parses the sets string from a WorkoutExercise and returns an array of set objects.
+   * Returns an empty array if sets is missing or invalid.
+   */
+  parseSets(sets: string | undefined | null): { weight: number; reps: number }[] {
+    if (!sets) return [];
+    try {
+      const parsed = JSON.parse(sets);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(set => typeof set.weight === 'number' && typeof set.reps === 'number');
+      }
+    } catch {
+      // If parsing fails, return empty array for safety
+      return [];
+    }
+    return [];
+  }
+
+  /**
+   * Returns true if the sets string is a valid, non-empty array.
+   */
+  hasSets(sets: string | undefined | null): boolean {
+    return this.parseSets(sets).length > 0;
   }
 }
