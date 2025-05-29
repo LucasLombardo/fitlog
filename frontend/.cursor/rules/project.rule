@@ -1,0 +1,4 @@
+- the package.json for the frontend is located in frontend/package.json, do not attempt to install things at the root level of the project
+- after every change, run `npm run test && npm run lint && npm run format` to verify tests work and fomatting/linting standards are followed
+- never write inline styles unless absolutely necessary
+- when creating new components: page level components should go in src/app/pages/, others in src/app/components. New components should have 4 files: .html, .scss, .spec.ts, and .ts

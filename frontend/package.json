@@ -11,8 +11,7 @@
     "test:watch": "ng test --browsers=ChromeHeadless --watch=true",
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,scss}\"",
-    "prepare": "husky install"
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss}\""
   },
   "private": true,
   "dependencies": {
