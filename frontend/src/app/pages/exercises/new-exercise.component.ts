@@ -60,7 +60,7 @@ export class NewExerciseComponent {
       );
       // 2. Add the exercise to the workout and get the created workout exercise object
       const workoutExercise = await firstValueFrom(
-        this.workoutService.addWorkoutExercise(this.workoutId, exercise.id)
+        this.workoutService.addWorkoutExercise(this.workoutId, exercise.id),
       );
       // 3. Redirect to the sets page for this workout exercise
       this.router.navigate(['/sets'], {

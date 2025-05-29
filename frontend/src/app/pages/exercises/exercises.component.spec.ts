@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Exercise } from '../../models/exercise.model';
+import { WorkoutExercise } from '../../models/workout.model';
 import { ExercisesService } from '../../services/exercises.service';
 import { WorkoutService } from '../../services/workout.service';
 import { ExercisesComponent } from './exercises.component';
-import { WorkoutExercise } from '../../models/workout.model';
 
 // Mock data
 const mockExercises: Exercise[] = [
@@ -99,7 +99,9 @@ describe('ExercisesComponent', () => {
 
   it('should call addWorkoutExercise and navigate', () => {
     component.workoutId = 'w1';
-    workoutServiceSpy.addWorkoutExercise.and.returnValue(of({ id: 'mockWexId' } as WorkoutExercise));
+    workoutServiceSpy.addWorkoutExercise.and.returnValue(
+      of({ id: 'mockWexId' } as WorkoutExercise),
+    );
     component.fromHome = false;
     component.addWorkoutExercise('1');
     expect(workoutServiceSpy.addWorkoutExercise).toHaveBeenCalledWith('w1', '1');

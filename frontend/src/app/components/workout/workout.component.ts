@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -11,6 +11,7 @@ import { Workout, WorkoutExercise } from '../../models/workout.model';
   imports: [CommonModule, MatButtonModule, MatListModule, MatIconModule],
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkoutComponent {
   // Accept a Workout object from the parent component

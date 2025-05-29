@@ -77,7 +77,7 @@ export class ExercisesComponent implements OnInit {
   addWorkoutExercise(exerciseId: string): void {
     if (!this.workoutId) return;
     this.workoutService.addWorkoutExercise(this.workoutId, exerciseId).subscribe({
-      next: (created) => {
+      next: created => {
         // After creation, redirect to the sets page for this workout exercise
         this.router.navigate(['/sets'], {
           state: {
