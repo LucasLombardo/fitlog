@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.core.env.Environment;
 
 // Controller for user-related endpoints
 @Tag(name = "User", description = "Operations related to user management, registration, login, and deletion.")
@@ -35,12 +36,14 @@ public class UserController {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final JwtUtil jwtUtil;
+    private final Environment env; // Inject Spring Environment to check active profiles
 
-    // Inject the UserRepository and JwtUtil via constructor
+    // Inject the UserRepository, JwtUtil, and Environment via constructor
     @Autowired
-    public UserController(UserRepository userRepository, JwtUtil jwtUtil) {
+    public UserController(UserRepository userRepository, JwtUtil jwtUtil, Environment env) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.env = env;
     }
 
     @Operation(
@@ -163,14 +166,28 @@ public class UserController {
         // Generate JWT token
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
 
+        // Determine if we are in dev or test profile
+        String[] activeProfiles = env.getActiveProfiles();
+        boolean isDevOrTest = false;
+        for (String profile : activeProfiles) {
+            if (profile.equals("dev") || profile.equals("test")) {
+                isDevOrTest = true;
+                break;
+            }
+        }
+
         // Set JWT as HttpOnly, Secure cookie
-        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("jwt", token)
-            .httpOnly(true)
-            .secure(true)
+        org.springframework.http.ResponseCookie.ResponseCookieBuilder cookieBuilder = org.springframework.http.ResponseCookie.from("jwt", token)
+            .httpOnly(true) // Prevent JS access
+            .secure(true)   // Only send over HTTPS
             .path("/")
             .sameSite("Strict")
-            .maxAge(24 * 60 * 60) // 1 day
-            .build();
+            .maxAge(24 * 60 * 60); // 1 day
+        // Only set domain in production (not dev/test)
+        if (!isDevOrTest) {
+            cookieBuilder.domain(".fitlogapp.com"); // Allow cookie for all subdomains
+        }
+        org.springframework.http.ResponseCookie cookie = cookieBuilder.build();
 
         // Return user info only (no token in body)
         return ResponseEntity.ok()
@@ -202,14 +219,27 @@ public class UserController {
     )
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
+        // Determine if we are in dev or test profile
+        String[] activeProfiles = env.getActiveProfiles();
+        boolean isDevOrTest = false;
+        for (String profile : activeProfiles) {
+            if (profile.equals("dev") || profile.equals("test")) {
+                isDevOrTest = true;
+                break;
+            }
+        }
         // To log out, set the JWT cookie with maxAge=0 (expires immediately)
-        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("jwt", "")
+        org.springframework.http.ResponseCookie.ResponseCookieBuilder cookieBuilder = org.springframework.http.ResponseCookie.from("jwt", "")
             .httpOnly(true)
             .secure(true)
             .path("/")
             .sameSite("Strict")
-            .maxAge(0) // Expire immediately
-            .build();
+            .maxAge(0); // Expire immediately
+        // Only set domain in production (not dev/test)
+        if (!isDevOrTest) {
+            cookieBuilder.domain(".fitlogapp.com");
+        }
+        org.springframework.http.ResponseCookie cookie = cookieBuilder.build();
 
         // Return a response with the expired cookie and a message
         return ResponseEntity.ok()

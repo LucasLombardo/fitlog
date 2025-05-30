@@ -45,11 +45,15 @@ public class SecurityConfig {
             }
         }
         if (isDevOrTest) {
+            // In development or test, allow requests from the local Angular frontend
             configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            configuration.setAllowedHeaders(List.of("*"));
-            configuration.setAllowCredentials(true);
+        } else {
+            // In production, only allow requests from the deployed frontend
+            configuration.setAllowedOrigins(List.of("https://fitlogapp.com"));
         }
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
