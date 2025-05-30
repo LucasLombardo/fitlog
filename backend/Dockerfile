@@ -8,7 +8,7 @@ COPY .mvn/ .mvn/
 COPY src/ ./src
 
 # Download dependencies and build the project
-RUN mvn dependency:go-offline
+# RUN mvn dependency:go-offline
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the final image
