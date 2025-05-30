@@ -2,6 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { Exercise } from '../models/exercise.model';
 import { ExercisesService } from './exercises.service';
+import { environment } from '../../environments/environment';
 
 const mockExercises: Exercise[] = [
   {
@@ -45,7 +46,7 @@ describe('ExercisesService', () => {
     service.getAllExercises().subscribe(exercises => {
       expect(exercises).toEqual(mockExercises);
     });
-    const req = httpMock.expectOne('http://localhost:8080/exercises');
+    const req = httpMock.expectOne(`${environment.apiUrl}/exercises`);
     expect(req.request.method).toBe('GET');
     expect(req.request.withCredentials).toBeTrue();
     req.flush(mockExercises);

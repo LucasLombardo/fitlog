@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { UserRole } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { HomeComponent } from './home.component';
+import { environment } from '../../../environments/environment';
 
 describe('HomeComponent', () => {
   let userSession: UserSessionService;
@@ -32,7 +33,7 @@ describe('HomeComponent', () => {
     });
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
-    const req = httpMock.expectOne('http://localhost:8080/workouts');
+    const req = httpMock.expectOne(`${environment.apiUrl}/workouts`);
     expect(req.request.method).toBe('POST');
     req.flush({
       updatedAt: '2025-05-26T19:43:29.562175',
@@ -58,7 +59,7 @@ describe('HomeComponent', () => {
     });
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
-    const req = httpMock.expectOne('http://localhost:8080/workouts');
+    const req = httpMock.expectOne(`${environment.apiUrl}/workouts`);
     req.flush('fail', { status: 500, statusText: 'Server Error' });
     expect(console.error).toHaveBeenCalled();
   });

@@ -2,6 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { Workout, WorkoutExercise } from '../models/workout.model';
 import { WorkoutService } from './workout.service';
+import { environment } from '../../environments/environment';
 
 const mockWorkout: Workout = {
   id: '1',
@@ -40,7 +41,7 @@ describe('WorkoutService', () => {
     service.getWorkoutById('1').subscribe(workout => {
       expect(workout).toEqual(mockWorkout);
     });
-    const req = httpMock.expectOne('http://localhost:8080/workouts/1');
+    const req = httpMock.expectOne(`${environment.apiUrl}/workouts/1`);
     expect(req.request.method).toBe('GET');
     expect(req.request.withCredentials).toBeTrue();
     req.flush(mockWorkout);
@@ -50,7 +51,7 @@ describe('WorkoutService', () => {
     service.getAllWorkouts().subscribe(workouts => {
       expect(workouts).toEqual([mockWorkout]);
     });
-    const req = httpMock.expectOne('http://localhost:8080/workouts');
+    const req = httpMock.expectOne(`${environment.apiUrl}/workouts`);
     expect(req.request.method).toBe('GET');
     expect(req.request.withCredentials).toBeTrue();
     req.flush([mockWorkout]);
@@ -74,7 +75,7 @@ describe('WorkoutService', () => {
     service.addWorkoutExercise('1', '2').subscribe(response => {
       expect(response).toEqual(jasmine.objectContaining({ id: 'mockWexId', position: 1 }));
     });
-    const req = httpMock.expectOne('http://localhost:8080/workout_exercises');
+    const req = httpMock.expectOne(`${environment.apiUrl}/workout_exercises`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       workoutId: '1',

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { UserSessionService } from '../../services/user-session.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -27,8 +28,8 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  // TODO: Move this to a config file or environment variable
-  private loginUrl = 'http://localhost:8080/users/login';
+  // Use the API base URL from the environment configuration
+  private loginUrl = `${environment.apiUrl}/users/login`;
 
   constructor(
     private http: HttpClient,

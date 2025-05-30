@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { User, UserRole } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {
@@ -111,7 +112,7 @@ export class UserSessionService {
    * Always clears session on client, even if backend fails.
    */
   logout(): Observable<unknown> {
-    return this.http.post('http://localhost:8080/users/logout', {}, { withCredentials: true }).pipe(
+    return this.http.post(`${environment.apiUrl}/users/logout`, {}, { withCredentials: true }).pipe(
       tap(() => this.clearUser()), // Clear session on success
       catchError(() => {
         this.clearUser(); // Clear session on error for security
@@ -130,7 +131,7 @@ export class UserSessionService {
     }
     return this.http
       .post<LoginResponse>(
-        'http://localhost:8080/users/login',
+        `${environment.apiUrl}/users/login`,
         { email, password },
         { withCredentials: true },
       )

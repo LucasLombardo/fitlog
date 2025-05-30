@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { User } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-users-list',
@@ -20,6 +21,9 @@ export class UsersListComponent implements OnInit {
   private http = inject(HttpClient);
   userSession = inject(UserSessionService);
 
+  // Use the API base URL from the environment configuration
+  private apiUrl = environment.apiUrl;
+
   ngOnInit() {
     // Only fetch users if not admin (per requirements)
     if (this.userSession.isAdmin()) {
@@ -29,7 +33,7 @@ export class UsersListComponent implements OnInit {
 
   fetchUsers() {
     this.loading = true;
-    this.http.get<User[]>('http://localhost:8080/users', { withCredentials: true }).subscribe({
+    this.http.get<User[]>(`${this.apiUrl}/users`, { withCredentials: true }).subscribe({
       next: users => {
         this.users = users;
         this.loading = false;
