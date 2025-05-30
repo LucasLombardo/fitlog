@@ -25,9 +25,11 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
+        working-directory: ./frontend
         run: npm ci
 
       - name: Build Angular app
+        working-directory: ./frontend
         run: npm run build -- --configuration production
 
       - name: Configure AWS credentials
@@ -39,7 +41,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync ./dist/frontend s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          aws s3 sync ./frontend/dist/frontend s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
