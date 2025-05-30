@@ -25,8 +25,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - ~/.m2:/root/.m2
+    # volumes:
+    #   - ~/.m2:/root/.m2
     networks:
       - app-network
 
