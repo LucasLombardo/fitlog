@@ -1,4 +1,5 @@
-name: Deploy to AWS Lightsail
+# Deploy to Backend and DB containers on AWS Lightsail
+name: Deploy Backend and DB
 
 on:
   workflow_dispatch:
