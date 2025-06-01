@@ -1,6 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --yellow: #ffd700;
+  --black: #1b1b1c;
+  --gray: #666564;
+}
+
 body {
   font-family: sans-serif;
+  color: var(--black);
 }
 
 .container {
@@ -36,4 +42,14 @@ body {
   font-weight: bold;
   margin-bottom: 0.5em;
   text-align: center;
+}
+
+.yellow-stroke {
+  color: var(--yellow);
+  font-weight: 900;
+  font-family: sans-serif;
+  text-decoration: none;
+  font-size: 1.5em;
+  letter-spacing: 0.05em;
+  -webkit-text-stroke: 1.2px var(--gray);
 }
