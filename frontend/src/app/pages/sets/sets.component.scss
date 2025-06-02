@@ -1,41 +1,77 @@
 main {
-    max-width: 24rem;
-    text-align: center;
-    margin: 2em auto;
+  max-width: 24rem;
+  text-align: center;
+  margin: 2em auto;
+}
+
+.increment-button {
+  color: var(--black);
+  border-radius: 0;
+  width: 1.4em;
+  height: 1.4em;
+
+  .mat-icon {
+    left: -0.2em;
+    top: -0.2em;
+  }
+  //   font-size:em;
+  .mat-mdc-button-persistent-ripple {
+    border-radius: 0;
+  }
+}
+.increment-button:hover ::ng-deep .mat-mdc-button-persistent-ripple::before,
+.increment-button:hover ::ng-deep .mat-ripple-element {
+  // hover dimmed background
+  border-radius: 0;
 }
 
 .increment-input {
-    display: grid;
-    grid-template-columns: 1fr 4fr 1fr;
-    align-items: center;
-    margin: 1em 0 0;
-    input {
-        text-align: center;
-        width: 80%;
-        margin: 0 auto;
-    }
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+  align-items: center;
+  margin: 1em 0 0;
+  input {
+    text-align: center;
+    width: 92%;
+    margin: 0 auto;
+    height: 1.6em;
+    outline: 1px solid;
+  }
 }
 
 .label {
-    font-size: 1em;
-    font-weight: bold;
-    grid-column: 1/4;
+  font-size: 1em;
+  font-weight: bold;
+  grid-column: 1/4;
 }
 
 .add-sets-inputs {
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
-    margin-bottom: 1.5em;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  margin-bottom: 1.5em;
 }
 
-.button {
-    border-radius: 0.5em;
-    // background: var(--yellow);
+.primary-buttons {
+  button {
+    margin: 1em 0.5em;
+  }
 }
 
-.button--primary {
-    display: block;
-    margin: 1em auto;
-    // background: var(--yellow);
+.sets-container {
+  border: 1px solid var(--gray);
+  margin-bottom: 1em;
+  > div {
+    border-bottom: 1px solid var(--gray);
+    position: relative;
+    padding: 1em;
+    &:last-child {
+        border-bottom: none;
+    }
+    button {
+        position: absolute;
+        right: 0.5em;
+        top: 0.22em;
+    }
+  }
 }

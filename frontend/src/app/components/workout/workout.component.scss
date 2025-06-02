@@ -10,10 +10,15 @@ header {
   max-width: 26rem;
   margin: 0 auto;
   padding-bottom: 2em;
+  .mat-mdc-action-list {
+    padding: 0;
+    max-width: unset;
+  }
   .mdc-list-item {
     height: auto;
-    border: 0.5px solid #e0e0e0;
+    border: 0.5px solid var(--gray);
     margin-bottom: 1em;
+    padding: 0;
   }
   .add-exercise-button {
     width: 100%;

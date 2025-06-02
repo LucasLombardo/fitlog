@@ -1,11 +1,8 @@
 <div class="workout-container">
   <header>
     <h1 class="title">{{ workout?.date | date: 'longDate' }}</h1>
-    <button mat-icon-button color="primary" (click)="addExercise()" style="color: #43a047">
-      <mat-icon>add</mat-icon>
-    </button>
   </header>
-  <mat-action-list style="max-width: 400px; margin: 0 auto">
+  <mat-action-list>
     <mat-list-item
       *ngFor="let ex of exercises"
       class="exercise-card is-focusable"
@@ -27,7 +24,7 @@
     </mat-list-item>
   </mat-action-list>
 
-  <button class="add-exercise-button" mat-raised-button color="primary" (click)="addExercise()">
+  <button class="add-exercise-button" mat-flat-button color="primary" (click)="addExercise()">
     Add Exercise
   </button>
   <!-- TODO: Add notes -->

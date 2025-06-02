@@ -8,6 +8,7 @@
       <button
         mat-icon-button
         color="primary"
+        class="increment-button"
         aria-label="Decrease weight"
         (click)="decrementWeight()"
       >
@@ -16,6 +17,7 @@
       <input matInput type="number" [(ngModel)]="weight" />
       <button
         mat-icon-button
+        class="increment-button"
         color="primary"
         aria-label="Increase weight"
         (click)="incrementWeight()"
@@ -27,18 +29,20 @@
     <!-- Reps input -->
     <div class="increment-input increment-input--reps">
       <span class="label">Reps:</span>
-      <button mat-icon-button color="primary" aria-label="Decrease reps" (click)="decrementReps()">
+      <button mat-icon-button color="primary" class="increment-button" aria-label="Decrease reps" (click)="decrementReps()">
         <mat-icon>remove</mat-icon>
       </button>
       <input matInput type="number" [(ngModel)]="reps" />
-      <button mat-icon-button color="primary" aria-label="Increase reps" (click)="incrementReps()">
+      <button mat-icon-button color="primary" class="increment-button" aria-label="Increase reps" (click)="incrementReps()">
         <mat-icon>add</mat-icon>
       </button>
     </div>
   </div>
 
-  <!-- Save button -->
-  <button class="button button--primary" mat-flat-button color="primary" (click)="saveSet()">Add Set</button>
+  <div class="primary-buttons">
+    <button mat-stroked-button color="primary" (click)="goHome()"><mat-icon>arrow_back</mat-icon>Done</button>
+    <button class="button button--primary" mat-flat-button color="primary" (click)="saveSet()">Add Set</button>
+  </div>
 
   <!-- Display sets -->
   <div *ngIf="setsArray.length > 0" class="sets-container">
@@ -50,8 +54,6 @@
       </button>
     </div>
   </div>
-  <div>
-    <button mat-stroked-button color="warn" (click)="removeExercise()">Remove Exercise</button>
-    <button mat-stroked-button color="primary" (click)="goHome()">Done</button>
-  </div>
+  <!-- TODO: add confirmation modal -->
+  <button mat-stroked-button color="warn" (click)="removeExercise()">Remove Exercise</button>
 </main>

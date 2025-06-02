@@ -1,27 +1,25 @@
 :root {
   --yellow: #ffd700;
+  --yellow-light: #fffbe5;
   --black: #1b1b1c;
   --gray: #666564;
-}
-
-body {
-  font-family: sans-serif;
-  color: var(--black);
-}
-
-.container {
-  max-width: min(64rem, 80%);
-  margin: 0 auto;
-  min-width: 18rem;
 }
 
 html,
 body {
   height: 100%;
+  font-family: sans-serif;
+  color: var(--black);
 }
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// A11y Styles
+*:focus-visible {
+  outline: 2px dashed var(--yellow);
+  outline-offset: 1px;
 }
 
 .is-focusable {
@@ -35,6 +33,22 @@ body {
     0 3px 5px -1px #0003,
     0 6px 10px #00000024,
     0 1px 18px #0000001f;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+}
+
+// COMMON CLASSES
+.container {
+  max-width: min(64rem, 80%);
+  margin: 0 auto;
+  min-width: 18rem;
 }
 
 .title {
@@ -53,3 +67,54 @@ body {
   letter-spacing: 0.05em;
   -webkit-text-stroke: 1.2px var(--gray);
 }
+
+// MATERIAL ANGULAR OVERRIDES
+:root {
+  // COLORS
+  --mdc-filled-button-container-color: var(--yellow);
+  --mdc-filled-button-label-text-color: var(--black);
+  --mdc-outlined-button-label-text-color: var(--black);
+  --mdc-outlined-button-outline-color: var(--black);
+  --mdc-outlined-button-hover-state-layer-color: var(--yellow-light);
+  --mdc-outlined-button-container-color: var(--yellow-light);
+}
+
+// BUTTONS
+.mat-mdc-outlined-button:hover .mdc-button__ripple::before {
+  background-color: var(--yellow-light) !important;
+  opacity: 1 !important;
+  z-index: -1 !important;
+}
+
+button.mdc-button {
+  border-radius: 0.5em;
+  border-width: 2px;
+}
+
+button.mat-primary {
+  border: 2px solid var(--black);
+}
+
+.mat-mdc-outlined-button.mat-warn {
+  background-color: #FAA0AA;
+  // TOOD: hover state
+}
+
+// INPUTS
+.mat-mdc-form-field.mat-focused .mdc-floating-label {
+  // focused label color
+  color: var(--black) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper .mdc-line-ripple::after {
+  // focused input border-bottom color
+  border-bottom-color: var(--black) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  // focused outline color
+  border-color: var(--yellow) !important;
+}
+
