@@ -1,0 +1,41 @@
+main {
+    max-width: 24rem;
+    text-align: center;
+    margin: 2em auto;
+}
+
+.increment-input {
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+    align-items: center;
+    margin: 1em 0 0;
+    input {
+        text-align: center;
+        width: 80%;
+        margin: 0 auto;
+    }
+}
+
+.label {
+    font-size: 1em;
+    font-weight: bold;
+    grid-column: 1/4;
+}
+
+.add-sets-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    margin-bottom: 1.5em;
+}
+
+.button {
+    border-radius: 0.5em;
+    // background: var(--yellow);
+}
+
+.button--primary {
+    display: block;
+    margin: 1em auto;
+    // background: var(--yellow);
+}
