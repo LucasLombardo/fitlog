@@ -153,4 +153,22 @@ export class UserSessionService {
         }),
       );
   }
+
+  /**
+   * Signs up a new user by POSTing to backend. Returns observable of created user.
+   */
+  signup(email: string, password: string): Observable<User> {
+    return this.http
+      .post<User>(`${environment.apiUrl}/users`, { email, password }, { withCredentials: true })
+      .pipe(
+        map(response => {
+          // Accept response as the user object itself
+          if (response && response.id && response.email) {
+            return response;
+          } else {
+            throw new Error('Signup failed: invalid response');
+          }
+        }),
+      );
+  }
 }
