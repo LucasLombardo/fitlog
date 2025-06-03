@@ -33,6 +33,7 @@ export class SetsComponent implements OnInit {
   reps = 1;
 
   setsArray: { weight: number; reps: number }[] = [];
+  exerciseName = "";
 
   constructor(
     private router: Router,
@@ -45,6 +46,7 @@ export class SetsComponent implements OnInit {
       workoutId?: string;
       exerciseId?: string;
       workoutExerciseId?: string;
+      exerciseName?: string;
     };
     this.workoutId = state?.workoutId;
     this.exerciseId = state?.exerciseId;
@@ -56,6 +58,7 @@ export class SetsComponent implements OnInit {
       this.workoutService.getWorkoutExerciseById(this.workoutExerciseId).subscribe({
         next: data => {
           console.log('WorkoutExercise data:', data);
+          this.exerciseName = data?.exercise?.name || "";
           if (data.sets && data.sets.trim() !== '') {
             try {
               this.setsArray = JSON.parse(data.sets);
@@ -111,9 +114,6 @@ export class SetsComponent implements OnInit {
             // Keep local setsArray
           }
         }
-        // Optionally clear input fields
-        this.weight = 0;
-        this.reps = 1;
       },
       error: err => console.error('Error updating workoutExercise:', err),
     });
