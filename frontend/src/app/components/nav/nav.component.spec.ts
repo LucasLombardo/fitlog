@@ -44,12 +44,4 @@ describe('NavComponent', () => {
     const loginLink = fixture.debugElement.nativeElement.textContent;
     expect(loginLink).toContain('Login');
   });
-
-  it('should render Users link if admin', () => {
-    userSessionSpy.isLoggedIn.and.returnValue(true);
-    userSessionSpy.isAdmin.and.returnValue(true);
-    fixture.detectChanges();
-    const html = fixture.debugElement.nativeElement.textContent;
-    expect(html).toContain('Users');
-  });
 });

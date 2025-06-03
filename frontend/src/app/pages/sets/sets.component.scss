@@ -66,12 +66,12 @@ main {
     position: relative;
     padding: 1em;
     &:last-child {
-        border-bottom: none;
+      border-bottom: none;
     }
     button {
-        position: absolute;
-        right: 0.5em;
-        top: 0.22em;
+      position: absolute;
+      right: 0.5em;
+      top: 0.22em;
     }
   }
 }

@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { User, UserRole } from '../models/user.model';
 import { environment } from '../../environments/environment';
+import { User, UserRole } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {

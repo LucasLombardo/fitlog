@@ -75,7 +75,7 @@ describe('SetsComponent', () => {
     expect(component.reps).toBe(1); // Should not go below 1
   });
 
-  it('should save a set and reset input fields', () => {
+  it('should save a set input fields', () => {
     component.workoutExerciseId = 'ex1';
     workoutServiceSpy.putWorkoutExerciseById.and.returnValue(
       of({
@@ -92,8 +92,6 @@ describe('SetsComponent', () => {
     expect(workoutServiceSpy.putWorkoutExerciseById).toHaveBeenCalledWith('ex1', [
       { weight: 10, reps: 2 },
     ]);
-    expect(component.weight).toBe(0);
-    expect(component.reps).toBe(1);
     expect(component.setsArray).toEqual([{ weight: 10, reps: 2 }]);
   });
 

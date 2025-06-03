@@ -1,5 +1,5 @@
 <main>
-  <h1 class="title">Add Sets: {{ exerciseName}}</h1>
+  <h1 class="title">Add Sets: {{ exerciseName }}</h1>
 
   <div class="add-sets-inputs">
     <!-- Weight input -->
@@ -29,19 +29,35 @@
     <!-- Reps input -->
     <div class="increment-input increment-input--reps">
       <span class="label">Reps:</span>
-      <button mat-icon-button color="primary" class="increment-button" aria-label="Decrease reps" (click)="decrementReps()">
+      <button
+        mat-icon-button
+        color="primary"
+        class="increment-button"
+        aria-label="Decrease reps"
+        (click)="decrementReps()"
+      >
         <mat-icon>remove</mat-icon>
       </button>
       <input matInput type="number" [(ngModel)]="reps" />
-      <button mat-icon-button color="primary" class="increment-button" aria-label="Increase reps" (click)="incrementReps()">
+      <button
+        mat-icon-button
+        color="primary"
+        class="increment-button"
+        aria-label="Increase reps"
+        (click)="incrementReps()"
+      >
         <mat-icon>add</mat-icon>
       </button>
     </div>
   </div>
 
   <div class="primary-buttons">
-    <button mat-stroked-button color="primary" (click)="goHome()"><mat-icon>arrow_back</mat-icon>Done</button>
-    <button class="button button--primary" mat-flat-button color="primary" (click)="saveSet()">Add Set</button>
+    <button mat-stroked-button color="primary" (click)="goHome()">
+      <mat-icon>arrow_back</mat-icon>Done
+    </button>
+    <button class="button button--primary" mat-flat-button color="primary" (click)="saveSet()">
+      Add Set
+    </button>
   </div>
 
   <!-- Display sets -->

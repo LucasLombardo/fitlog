@@ -33,7 +33,7 @@ export class SetsComponent implements OnInit {
   reps = 1;
 
   setsArray: { weight: number; reps: number }[] = [];
-  exerciseName = "";
+  exerciseName = '';
 
   constructor(
     private router: Router,
@@ -58,7 +58,7 @@ export class SetsComponent implements OnInit {
       this.workoutService.getWorkoutExerciseById(this.workoutExerciseId).subscribe({
         next: data => {
           console.log('WorkoutExercise data:', data);
-          this.exerciseName = data?.exercise?.name || "";
+          this.exerciseName = data?.exercise?.name || '';
           if (data.sets && data.sets.trim() !== '') {
             try {
               this.setsArray = JSON.parse(data.sets);

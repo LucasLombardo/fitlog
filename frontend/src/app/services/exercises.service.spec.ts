@@ -1,8 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { environment } from '../../environments/environment';
 import { Exercise } from '../models/exercise.model';
 import { ExercisesService } from './exercises.service';
-import { environment } from '../../environments/environment';
 
 const mockExercises: Exercise[] = [
   {

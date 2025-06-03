@@ -1,9 +1,9 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { User } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-users-list',

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Workout, WorkoutExercise } from '../models/workout.model';
 import { environment } from '../../environments/environment';
+import { Workout, WorkoutExercise } from '../models/workout.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorkoutService {

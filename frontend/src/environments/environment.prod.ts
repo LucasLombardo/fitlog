@@ -4,4 +4,4 @@
 export const environment = {
   // Base URL for backend API (production)
   apiUrl: 'https://api.fitlogapp.com',
-}; 
+};

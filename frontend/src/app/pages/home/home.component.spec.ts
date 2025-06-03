@@ -2,10 +2,10 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 // import { ComponentFixture } from '@angular/core/testing'; // Removed unused import
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { environment } from '../../../environments/environment';
 import { UserRole } from '../../models/user.model';
 import { UserSessionService } from '../../services/user-session.service';
 import { HomeComponent } from './home.component';
-import { environment } from '../../../environments/environment';
 
 describe('HomeComponent', () => {
   let userSession: UserSessionService;
