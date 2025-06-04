@@ -623,4 +623,34 @@ public class UserControllerTest {
                 .cookie(jwtCookie))
                 .andExpect(status().isForbidden()); // Not admin, so forbidden
     }
+
+    @Test
+    void testVerifyEmailEndpoint_Succeeds() throws Exception {
+        String testEmail = uniqueEmail("verifyemail");
+        // Register a new user
+        var createUser = new java.util.HashMap<String, String>();
+        createUser.put("email", testEmail);
+        createUser.put("password", testPassword);
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createUser)))
+                .andExpect(status().isCreated());
+        // Fetch the user and get the verification code
+        var userOpt = userRepository.findByEmail(testEmail);
+        assert(userOpt.isPresent());
+        var user = userOpt.get();
+        String code = user.getEmailVerificationCode();
+        // Call verify-email endpoint
+        var verifyRequest = new java.util.HashMap<String, String>();
+        verifyRequest.put("email", testEmail);
+        verifyRequest.put("code", code);
+        mockMvc.perform(post("/users/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Email verified successfully. You can now log in."));
+        // Check user is now verified
+        var verifiedUser = userRepository.findByEmail(testEmail).get();
+        assert(verifiedUser.isEmailVerified());
+    }
 } 

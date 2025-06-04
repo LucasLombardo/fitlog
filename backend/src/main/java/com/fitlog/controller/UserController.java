@@ -466,9 +466,7 @@ public class UserController {
         if (user.getEmailVerificationExpiry() == null || user.getEmailVerificationExpiry().isBefore(java.time.LocalDateTime.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Verification code expired. Please request a new one."));
         }
-        // Send verification email to user
-        emailService.sendVerificationEmail(user.getEmail(), code);
-        // Mark as verified
+        // Do NOT send verification email again here; only mark as verified
         user.setEmailVerified(true);
         user.setEmailVerificationCode(null); // Clear code
         user.setEmailVerificationExpiry(null); // Clear expiry
