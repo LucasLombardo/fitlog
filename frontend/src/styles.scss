@@ -16,6 +16,16 @@ body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+// Remove increment/decrement buttons from number inputs
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 // A11y Styles
 *:focus-visible {
   outline: 2px dashed var(--yellow);
