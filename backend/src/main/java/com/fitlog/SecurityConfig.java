@@ -68,6 +68,7 @@ public class SecurityConfig {
                 // Allow public access to POST /users (signup) and POST /users/login (login)
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users/verify-email").permitAll()
                 // Require authentication for all other /users endpoints (including GET /users)
                 .requestMatchers("/users", "/users/", "/users/**").authenticated()
                 .anyRequest().permitAll() // Allow other endpoints (e.g., health)

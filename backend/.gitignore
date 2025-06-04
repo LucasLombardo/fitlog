@@ -22,3 +22,6 @@ Thumbs.db
 
 # Lombok (if any)
 *.lombok 
+
+.env
+.env.sh

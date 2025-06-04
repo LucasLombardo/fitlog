@@ -27,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.core.env.Environment;
+import com.fitlog.service.EmailService;
 
 // Controller for user-related endpoints
 @Tag(name = "User", description = "Operations related to user management, registration, login, and deletion.")
@@ -37,13 +38,15 @@ public class UserController {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final JwtUtil jwtUtil;
     private final Environment env; // Inject Spring Environment to check active profiles
+    private final EmailService emailService;
 
     // Inject the UserRepository, JwtUtil, and Environment via constructor
     @Autowired
-    public UserController(UserRepository userRepository, JwtUtil jwtUtil, Environment env) {
+    public UserController(UserRepository userRepository, JwtUtil jwtUtil, Environment env, EmailService emailService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.env = env;
+        this.emailService = emailService;
     }
 
     @Operation(
@@ -78,7 +81,12 @@ public class UserController {
 
     /**
      * Endpoint to create a new user.
-     * In the future, add email verification and send a verification email here.
+     * Now includes email verification:
+     *  - When a user registers, a random code is generated and sent to their email (using Amazon SES).
+     *  - The code is valid for 1 hour.
+     *  - The user must verify their email before they can log in.
+     *  - The code and expiry are stored in the User entity.
+     *  - The emailVerified field is set to false until verification is complete.
      * For password reset, store a reset token and send email when needed.
      */
     @Operation(
@@ -113,6 +121,19 @@ public class UserController {
         user.setPassword(hashedPassword);
         user.setRole("USER"); // Always set to USER for self-registration
         // createdAt/updatedAt are set automatically
+
+        // --- EMAIL VERIFICATION LOGIC ---
+        // 1. Generate a random 6-digit code
+        String verificationCode = String.format("%06d", (int)(Math.random() * 1000000));
+        // 2. Set code and expiry (1 hour from now)
+        user.setEmailVerificationCode(verificationCode);
+        user.setEmailVerificationExpiry(java.time.LocalDateTime.now().plusHours(1));
+        user.setEmailVerified(false); // Not verified yet
+        // 3. Send the code to the user's email using Amazon SES
+        //    (Implemented in EmailService)
+        emailService.sendVerificationEmail(user.getEmail(), verificationCode);
+        // --- END EMAIL VERIFICATION LOGIC ---
+
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
@@ -124,7 +145,9 @@ public class UserController {
             "email", user.getEmail(),
             "createdAt", user.getCreatedAt(),
             "updatedAt", user.getUpdatedAt(),
-            "role", user.getRole()
+            "role", user.getRole(),
+            "emailVerified", user.isEmailVerified(),
+            "note", "User must verify their email before logging in."
         ));
     }
 
@@ -162,6 +185,10 @@ public class UserController {
         if (!passwordEncoder.matches(request.password, user.getPassword())) {
             // Do not reveal if email or password is wrong
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials."));
+        }
+        // Prevent login if email is not verified
+        if (!user.isEmailVerified()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Email not verified. Please check your email for the verification code."));
         }
         // Generate JWT token
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
@@ -388,5 +415,64 @@ public class UserController {
         // Delete the user
         userRepository.deleteById(userId);
         return ResponseEntity.ok(Map.of("message", "Account deleted successfully."));
+    }
+
+    /**
+     * Endpoint to verify a user's email using the code sent to their email.
+     * The user provides their email and the code. If valid and not expired, emailVerified is set to true.
+     *
+     * Example request body:
+     * { "email": "user@example.com", "code": "123456" }
+     */
+    @Operation(
+        summary = "Verify user email",
+        description = "Verifies a user's email using the code sent to their email address.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Email verified successfully."),
+            @ApiResponse(responseCode = "400", description = "Invalid code, expired, or user not found.")
+        }
+    )
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Request body containing email and verification code.",
+            required = true,
+            content = @Content(
+                schema = @Schema(
+                    example = "{\"email\": \"user@example.com\", \"code\": \"123456\"}"
+                )
+            )
+        )
+        @RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        // Basic validation
+        if (email == null || email.isBlank() || code == null || code.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Email and code are required."));
+        }
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "User not found."));
+        }
+        User user = userOpt.get();
+        // Check if already verified
+        if (user.isEmailVerified()) {
+            return ResponseEntity.ok(Map.of("message", "Email already verified."));
+        }
+        // Check code and expiry
+        if (!code.equals(user.getEmailVerificationCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid verification code."));
+        }
+        if (user.getEmailVerificationExpiry() == null || user.getEmailVerificationExpiry().isBefore(java.time.LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Verification code expired. Please request a new one."));
+        }
+        // Send verification email to user
+        emailService.sendVerificationEmail(user.getEmail(), code);
+        // Mark as verified
+        user.setEmailVerified(true);
+        user.setEmailVerificationCode(null); // Clear code
+        user.setEmailVerificationExpiry(null); // Clear expiry
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Email verified successfully. You can now log in."));
     }
 } 

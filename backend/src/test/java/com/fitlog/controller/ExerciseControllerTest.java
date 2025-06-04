@@ -66,6 +66,11 @@ public class ExerciseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        // Mark user as verified for tests
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        });
         return email;
     }
 

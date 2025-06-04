@@ -106,6 +106,14 @@ public class UserControllerTest {
         return base + "+" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
     }
 
+    // Helper to mark a user as verified for tests
+    private void verifyUser(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        });
+    }
+
     @Test
     void testUserRegistrationAndLoginAndProtectedEndpoint() throws Exception {
         String testEmail = uniqueEmail("testuser");
@@ -118,6 +126,7 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value(testEmail));
+        verifyUser(testEmail);
 
         // 2. Login with the new user
         var loginUser = new java.util.HashMap<String, String>();
@@ -151,6 +160,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         // Try to register again with same email
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -169,6 +179,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         // Try to login with wrong password
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
@@ -208,6 +219,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         // Try to delete without token
         mockMvc.perform(delete("/users/00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isForbidden());
@@ -224,6 +236,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
         loginUser.put("password", testPassword);
@@ -256,6 +269,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         // Register and login as admin
         var createAdmin = new java.util.HashMap<String, String>();
         createAdmin.put("email", adminEmail);
@@ -264,6 +278,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createAdmin)))
                 .andExpect(status().isCreated());
+        verifyUser(adminEmail);
         // Set admin role directly in DB for this test
         userRepository.findByEmail(adminEmail).ifPresent(user -> {
             user.setRole("ADMIN");
@@ -311,6 +326,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser1)))
                 .andExpect(status().isCreated());
+        verifyUser(user1Email);
         // Register user2
         var createUser2 = new java.util.HashMap<String, String>();
         createUser2.put("email", user2Email);
@@ -319,6 +335,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser2)))
                 .andExpect(status().isCreated());
+        verifyUser(user2Email);
         // Login as user2
         var loginUser2 = new java.util.HashMap<String, String>();
         loginUser2.put("email", user2Email);
@@ -358,6 +375,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createAdmin)))
                 .andExpect(status().isCreated());
+        verifyUser(adminEmail);
         // Set admin role directly in DB for this test
         userRepository.findByEmail(adminEmail).ifPresent(user -> {
             user.setRole("ADMIN");
@@ -400,6 +418,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
         loginUser.put("password", testPassword);
@@ -426,6 +445,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createAdmin)))
                 .andExpect(status().isCreated());
+        verifyUser(adminEmail);
         // Set admin role directly in DB for this test
         userRepository.findByEmail(adminEmail).ifPresent(user -> {
             user.setRole("ADMIN");
@@ -457,6 +477,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
         loginUser.put("password", testPassword);
@@ -484,6 +505,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createAdmin)))
                 .andExpect(status().isCreated());
+        verifyUser(adminEmail);
         // Set admin role directly in DB for this test
         userRepository.findByEmail(adminEmail).ifPresent(user -> {
             user.setRole("ADMIN");
@@ -506,6 +528,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(userEmail);
         // Get user id
         MvcResult usersResult = mockMvc.perform(get("/users")
                 .cookie(new MockCookie("jwt", jwt)))
@@ -534,6 +557,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
         // Login to get JWT
         var loginUser = new java.util.HashMap<String, String>();
         loginUser.put("email", testEmail);
@@ -567,6 +591,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUser)))
                 .andExpect(status().isCreated());
+        verifyUser(testEmail);
 
         // 2. Login to get JWT cookie
         var loginUser = new java.util.HashMap<String, String>();

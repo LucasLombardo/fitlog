@@ -81,6 +81,19 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- AWS SDK for SES (Simple Email Service) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ses</artifactId>
+            <version>2.25.35</version>
+        </dependency>
+        <!-- AWS SDK Auth (required for credentials) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <version>2.25.35</version>
+        </dependency>
+        <!-- For beginners: These dependencies allow you to send emails using Amazon SES from Java. -->
     </dependencies>
     <build>
         <plugins>
