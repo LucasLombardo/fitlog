@@ -171,4 +171,15 @@ export class UserSessionService {
         }),
       );
   }
+
+  /**
+   * Verifies the user's email with a code sent to their email address.
+   */
+  verifyEmail(email: string, code: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/users/verify-email`,
+      { email, code },
+      { withCredentials: true },
+    );
+  }
 }

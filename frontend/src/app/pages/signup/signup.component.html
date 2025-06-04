@@ -1,16 +1,51 @@
 <main>
   <h1>Sign Up</h1>
-  <form (ngSubmit)="signup()" class="login-form">
+  <form *ngIf="!isVerifying" (ngSubmit)="signup()" class="login-form">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email</mat-label>
-      <input matInput type="email" name="email" [(ngModel)]="email" required />
+      <input
+        matInput
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        required
+        [disabled]="signupDisabled"
+      />
     </mat-form-field>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Password</mat-label>
-      <input matInput type="password" name="password" [(ngModel)]="password" required />
+      <input
+        matInput
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        required
+        [disabled]="signupDisabled"
+      />
     </mat-form-field>
-    <button class="login-button" mat-flat-button color="primary" type="submit">Sign Up</button>
+    <button
+      class="login-button"
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="signupDisabled"
+    >
+      Sign Up
+    </button>
   </form>
+
+  <form *ngIf="isVerifying" (ngSubmit)="submitVerification()" class="login-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Verification Code</mat-label>
+      <input matInput type="text" name="verificationCode" [(ngModel)]="verificationCode" required />
+    </mat-form-field>
+    <div class="info-message">Please check your email for a verification code.</div>
+    <div *ngIf="verificationError" class="error-message">{{ verificationError }}</div>
+    <button class="login-button" mat-flat-button color="primary" type="submit">
+      Verify & Sign In
+    </button>
+  </form>
+
   <div class="signin">
     <span>Already have an account?</span>
     <button class="inline-button" mat-button type="button" (click)="login()">Log In</button>

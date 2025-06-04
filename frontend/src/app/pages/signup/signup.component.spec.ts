@@ -39,6 +39,7 @@ describe('SignupComponent logic', () => {
     userSession = TestBed.inject(UserSessionService);
     spyOn(userSession, 'signup');
     spyOn(userSession, 'login');
+    spyOn(userSession, 'verifyEmail');
     router = { navigate: jasmine.createSpy() };
     snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
     component = new SignupComponent({} as HttpClient, router as Router, userSession, snackBar);
@@ -51,6 +52,12 @@ describe('SignupComponent logic', () => {
     component.password = 'pw';
     component.signup();
     expect(userSession.signup).toHaveBeenCalledWith('a@b.com', 'pw');
+    expect(component.isVerifying).toBeTrue();
+    (userSession.verifyEmail as jasmine.Spy).and.returnValue(of({ message: 'ok' }));
+    (userSession.login as jasmine.Spy).and.returnValue(of({}));
+    component.verificationCode = '123456';
+    component.submitVerification();
+    expect(userSession.verifyEmail).toHaveBeenCalledWith('a@b.com', '123456');
     expect(userSession.login).toHaveBeenCalledWith('a@b.com', 'pw');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
@@ -59,5 +66,19 @@ describe('SignupComponent logic', () => {
     (userSession.signup as jasmine.Spy).and.returnValue(throwError(() => new Error('fail')));
     component.signup();
     expect(snackBar.open).toHaveBeenCalled();
+  });
+
+  it('should show error if verification fails', () => {
+    (userSession.signup as jasmine.Spy).and.returnValue(of({}));
+    (userSession.verifyEmail as jasmine.Spy).and.returnValue(
+      throwError(() => ({ error: { message: 'Invalid code' } })),
+    );
+    component.email = 'a@b.com';
+    component.password = 'pw';
+    component.signup();
+    expect(component.isVerifying).toBeTrue();
+    component.verificationCode = 'badcode';
+    component.submitVerification();
+    expect(component.verificationError).toBe('Invalid code');
   });
 });

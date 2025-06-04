@@ -26,6 +26,10 @@ import { UserSessionService } from '../../services/user-session.service';
 export class SignupComponent {
   email = '';
   password = '';
+  verificationCode = '';
+  isVerifying = false;
+  signupDisabled = false;
+  verificationError = '';
 
   constructor(
     private http: HttpClient,
@@ -35,23 +39,13 @@ export class SignupComponent {
   ) {}
 
   signup() {
+    this.signupDisabled = true;
     this.userSession.signup(this.email, this.password).subscribe({
       next: () => {
-        // On successful signup, immediately log in
-        this.userSession.login(this.email, this.password).subscribe({
-          next: () => {
-            this.router.navigate(['/']);
-          },
-          error: () => {
-            this.snackBar.open(
-              'Signup succeeded, but login failed. Please try logging in.',
-              'Close',
-              {
-                duration: 3000,
-              },
-            );
-          },
-        });
+        // On successful signup, prompt for verification code
+        this.isVerifying = true;
+        this.signupDisabled = true;
+        this.verificationError = '';
       },
       error: err => {
         let msg = 'Signup failed. Please try again.';
@@ -59,6 +53,34 @@ export class SignupComponent {
           msg = err.error.message;
         }
         this.snackBar.open(msg, 'Close', { duration: 3000 });
+        this.signupDisabled = false;
+      },
+    });
+  }
+
+  submitVerification() {
+    this.userSession.verifyEmail(this.email, this.verificationCode).subscribe({
+      next: () => {
+        // On successful verification, log in
+        this.userSession.login(this.email, this.password).subscribe({
+          next: () => {
+            this.router.navigate(['/']);
+          },
+          error: () => {
+            this.snackBar.open(
+              'Verification succeeded, but login failed. Please try logging in.',
+              'Close',
+              { duration: 3000 },
+            );
+          },
+        });
+      },
+      error: err => {
+        let msg = 'Invalid verification code. Please try again.';
+        if (err && err.error && err.error.message) {
+          msg = err.error.message;
+        }
+        this.verificationError = msg;
       },
     });
   }
